@@ -132,3 +132,12 @@ Public Sub RewriteActiveRollLengths()
     Call FormatRollLayout
     
 End Sub 
+
+
+Public Sub SaveShiftFromButton()
+    Dim s As Shift
+    Set s = New Shift
+    s.LoadFromSheet PRODUCTION_WS
+    s.AppendToDataShifts Worksheets("dataShifts")
+    ' MsgBox "Le shift a bien été ajouté à l'onglet dataShifts !", vbInformation
+End Sub 

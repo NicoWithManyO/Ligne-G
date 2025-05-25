@@ -1,3 +1,4 @@
+Attribute VB_Name = "modRangesInit"
 Option Explicit
 
 ' Constantes pour les noms des ranges
@@ -50,28 +51,28 @@ Public Sub initShiftRanges()
     On Error GoTo 0
     
     ' Création des nouvelles ranges
-    ThisWorkbook.Names.Add Name:=RANGE_SHIFT_ID, RefersTo:=PRODUCTION_WS.Range("AC57")
+    ThisWorkbook.Names.Add Name:=RANGE_SHIFT_ID, RefersTo:=PRODUCTION_WS.Range("AC55")
     ThisWorkbook.Names.Add Name:=RANGE_SHIFT_DATE, RefersTo:=PRODUCTION_WS.Range("AD54")
     ThisWorkbook.Names.Add Name:=RANGE_SHIFT_OPERATEUR, RefersTo:=PRODUCTION_WS.Range("AD56")
     ThisWorkbook.Names.Add Name:=RANGE_SHIFT_VACCATION, RefersTo:=PRODUCTION_WS.Range("AD58")
-    ThisWorkbook.Names.Add Name:=RANGE_SHIFT_DUREE, RefersTo:=PRODUCTION_WS.Range("AF58")
+    ThisWorkbook.Names.Add Name:=RANGE_SHIFT_DUREE, RefersTo:=PRODUCTION_WS.Range("AG58")
     
     ThisWorkbook.Names.Add Name:=RANGE_SHIFT_MACHINE_PRISE_POSTE, RefersTo:=PRODUCTION_WS.Range("AC61")
     ThisWorkbook.Names.Add Name:=RANGE_SHIFT_LG_ENROULEE_PRISE_POSTE, RefersTo:=PRODUCTION_WS.Range("AF61")
-    ThisWorkbook.Names.Add Name:=RANGE_SHIFT_MACHINE_FIN_POSTE, RefersTo:=PRODUCTION_WS.Range("AC65")
-    ThisWorkbook.Names.Add Name:=RANGE_SHIFT_LG_ENROULEE_FIN_POSTE, RefersTo:=PRODUCTION_WS.Range("AF65")
+    ThisWorkbook.Names.Add Name:=RANGE_SHIFT_MACHINE_FIN_POSTE, RefersTo:=PRODUCTION_WS.Range("AC64")
+    ThisWorkbook.Names.Add Name:=RANGE_SHIFT_LG_ENROULEE_FIN_POSTE, RefersTo:=PRODUCTION_WS.Range("AF64")
     ThisWorkbook.Names.Add Name:=RANGE_SHIFT_COMMENTAIRES, RefersTo:=PRODUCTION_WS.Range("AC67:AG71")
     
     ' Affichage des adresses des ranges
-    Debug.Print "[initShiftRanges] -> " & RANGE_SHIFT_ID & " : AC57"
+    Debug.Print "[initShiftRanges] -> " & RANGE_SHIFT_ID & " : AC55"
     Debug.Print "[initShiftRanges] -> " & RANGE_SHIFT_DATE & " : AD54"
     Debug.Print "[initShiftRanges] -> " & RANGE_SHIFT_OPERATEUR & " : AD56"
     Debug.Print "[initShiftRanges] -> " & RANGE_SHIFT_VACCATION & " : AD58"
-    Debug.Print "[initShiftRanges] -> " & RANGE_SHIFT_DUREE & " : AF58"
+    Debug.Print "[initShiftRanges] -> " & RANGE_SHIFT_DUREE & " : AG58"
     Debug.Print "[initShiftRanges] -> " & RANGE_SHIFT_MACHINE_PRISE_POSTE & " : AC61"
     Debug.Print "[initShiftRanges] -> " & RANGE_SHIFT_LG_ENROULEE_PRISE_POSTE & " : AF61"
-    Debug.Print "[initShiftRanges] -> " & RANGE_SHIFT_MACHINE_FIN_POSTE & " : AC65"
-    Debug.Print "[initShiftRanges] -> " & RANGE_SHIFT_LG_ENROULEE_FIN_POSTE & " : AF65"
+    Debug.Print "[initShiftRanges] -> " & RANGE_SHIFT_MACHINE_FIN_POSTE & " : AC64"
+    Debug.Print "[initShiftRanges] -> " & RANGE_SHIFT_LG_ENROULEE_FIN_POSTE & " : AF64"
     Debug.Print "[initShiftRanges] -> " & RANGE_SHIFT_COMMENTAIRES & " : AC67:AG71"
 End Sub
 
