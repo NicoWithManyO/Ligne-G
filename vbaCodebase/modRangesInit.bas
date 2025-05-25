@@ -22,6 +22,10 @@ Const ROLL_END_COL As String = "BD"
 Const ROLL_MEASURE_INTERVAL As Long = 5  ' Mesures tous les 5m
 Const ROLL_MEASURE_OFFSET As Long = 3    ' Première mesure à 3m
 
+' Constantes pour les ranges des valeurs limites
+Const RANGE_CTRL_MIN_THICKNESS As String = "ctrlMinThickness"  ' Seuil rouge (BK59)
+Const RANGE_CTRL_WARN_THICKNESS As String = "ctrlWarnThickness"  ' Seuil orange (BJ59)
+
 ' Initialise les ranges nommées pour le suivi des shifts
 ' @pre : PRODUCTION_WS doit être initialisé
 ' @return : aucun
@@ -52,11 +56,11 @@ Public Sub initShiftRanges()
     ThisWorkbook.Names.Add Name:=RANGE_SHIFT_VACCATION, RefersTo:=PRODUCTION_WS.Range("AD58")
     ThisWorkbook.Names.Add Name:=RANGE_SHIFT_DUREE, RefersTo:=PRODUCTION_WS.Range("AF58")
     
-    ThisWorkbook.Names.Add Name:=RANGE_SHIFT_MACHINE_PRISE_POSTE, RefersTo:=PRODUCTION_WS.Range("AC62")
-    ThisWorkbook.Names.Add Name:=RANGE_SHIFT_LG_ENROULEE_PRISE_POSTE, RefersTo:=PRODUCTION_WS.Range("AF62")
-    ThisWorkbook.Names.Add Name:=RANGE_SHIFT_MACHINE_FIN_POSTE, RefersTo:=PRODUCTION_WS.Range("AC66")
-    ThisWorkbook.Names.Add Name:=RANGE_SHIFT_LG_ENROULEE_FIN_POSTE, RefersTo:=PRODUCTION_WS.Range("AF66")
-    ThisWorkbook.Names.Add Name:=RANGE_SHIFT_COMMENTAIRES, RefersTo:=PRODUCTION_WS.Range("AC69:AG73")
+    ThisWorkbook.Names.Add Name:=RANGE_SHIFT_MACHINE_PRISE_POSTE, RefersTo:=PRODUCTION_WS.Range("AC61")
+    ThisWorkbook.Names.Add Name:=RANGE_SHIFT_LG_ENROULEE_PRISE_POSTE, RefersTo:=PRODUCTION_WS.Range("AF61")
+    ThisWorkbook.Names.Add Name:=RANGE_SHIFT_MACHINE_FIN_POSTE, RefersTo:=PRODUCTION_WS.Range("AC65")
+    ThisWorkbook.Names.Add Name:=RANGE_SHIFT_LG_ENROULEE_FIN_POSTE, RefersTo:=PRODUCTION_WS.Range("AF65")
+    ThisWorkbook.Names.Add Name:=RANGE_SHIFT_COMMENTAIRES, RefersTo:=PRODUCTION_WS.Range("AC67:AG71")
     
     ' Affichage des adresses des ranges
     Debug.Print "[initShiftRanges] -> " & RANGE_SHIFT_ID & " : AC57"
@@ -64,11 +68,11 @@ Public Sub initShiftRanges()
     Debug.Print "[initShiftRanges] -> " & RANGE_SHIFT_OPERATEUR & " : AD56"
     Debug.Print "[initShiftRanges] -> " & RANGE_SHIFT_VACCATION & " : AD58"
     Debug.Print "[initShiftRanges] -> " & RANGE_SHIFT_DUREE & " : AF58"
-    Debug.Print "[initShiftRanges] -> " & RANGE_SHIFT_MACHINE_PRISE_POSTE & " : AC62"
-    Debug.Print "[initShiftRanges] -> " & RANGE_SHIFT_LG_ENROULEE_PRISE_POSTE & " : AF62"
-    Debug.Print "[initShiftRanges] -> " & RANGE_SHIFT_MACHINE_FIN_POSTE & " : AC66"
-    Debug.Print "[initShiftRanges] -> " & RANGE_SHIFT_LG_ENROULEE_FIN_POSTE & " : AF66"
-    Debug.Print "[initShiftRanges] -> " & RANGE_SHIFT_COMMENTAIRES & " : AC69:AG73"
+    Debug.Print "[initShiftRanges] -> " & RANGE_SHIFT_MACHINE_PRISE_POSTE & " : AC61"
+    Debug.Print "[initShiftRanges] -> " & RANGE_SHIFT_LG_ENROULEE_PRISE_POSTE & " : AF61"
+    Debug.Print "[initShiftRanges] -> " & RANGE_SHIFT_MACHINE_FIN_POSTE & " : AC65"
+    Debug.Print "[initShiftRanges] -> " & RANGE_SHIFT_LG_ENROULEE_FIN_POSTE & " : AF65"
+    Debug.Print "[initShiftRanges] -> " & RANGE_SHIFT_COMMENTAIRES & " : AC67:AG71"
 End Sub
 
 ' Définit les plages nommées pour le rouleau
@@ -312,6 +316,30 @@ Public Sub defineRollNamedRanges()
             Debug.Print "[defineRollNamedRanges] ATTENTION : Plage non créée : " & name
         End If
     Next name
+End Sub
+
+' Initialise les ranges nommées pour les valeurs limites de contrôle
+' @pre : PRODUCTION_WS doit être initialisé
+' @return : aucun
+Public Sub initCtrlLimitValues()
+    If PRODUCTION_WS Is Nothing Then
+        Debug.Print "[initCtrlLimitValues] ERREUR : PRODUCTION_WS non initialisé"
+        Exit Sub
+    End If
+    
+    ' Suppression des ranges existantes pour éviter les doublons
+    On Error Resume Next
+    ThisWorkbook.Names(RANGE_CTRL_MIN_THICKNESS).Delete
+    ThisWorkbook.Names(RANGE_CTRL_WARN_THICKNESS).Delete
+    On Error GoTo 0
+    
+    ' Création des nouvelles ranges
+    ThisWorkbook.Names.Add Name:=RANGE_CTRL_MIN_THICKNESS, RefersTo:=PRODUCTION_WS.Range("BK59")  ' Seuil rouge
+    ThisWorkbook.Names.Add Name:=RANGE_CTRL_WARN_THICKNESS, RefersTo:=PRODUCTION_WS.Range("BJ59")  ' Seuil orange
+    
+    ' Affichage des adresses des ranges
+    Debug.Print "[initCtrlLimitValues] -> " & RANGE_CTRL_MIN_THICKNESS & " : BK59 (seuil rouge)"
+    Debug.Print "[initCtrlLimitValues] -> " & RANGE_CTRL_WARN_THICKNESS & " : BJ59 (seuil orange)"
 End Sub
 
 

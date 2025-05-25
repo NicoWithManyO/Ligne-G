@@ -20,7 +20,7 @@ Public Sub initializeComponents()
     Call initShiftRanges
     Call defineRollNamedRanges
     Call FormatRollLayout
-    
+    CallinitCtrlLimitValues
     Debug.Print "[initializeComponents] Initialisation terminée"
 
 End Sub

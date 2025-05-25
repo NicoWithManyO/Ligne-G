@@ -70,7 +70,7 @@ Public Sub ApplyThicknessStyle(cell As Range)
     Else
         Dim v As Double
         v = Val(cell.Value)
-        If v < 4 Then
+        If v < Range("ctrlMinThickness").Value Then
             ' Rouge, texte blanc
             cell.Interior.Color = RGB(255, 0, 0)
             cell.Font.Color = COLOR_TXT_WHITE
@@ -101,7 +101,7 @@ Public Sub ApplyThicknessStyle(cell As Range)
                     Call ApplyThicknessStyle(rattrapageCell)
                 End If
             End If
-        ElseIf (v >= 4 And v < 5) Or v > 9 Then
+        ElseIf (v < Range("ctrlWarnThickness").Value) Or (v > 9) Then
             ' Vert, texte orange
             cell.Interior.Color = RGB(0, 176, 80)
             cell.Font.Color = RGB(255, 192, 0)
@@ -131,7 +131,7 @@ Public Sub ApplyThicknessStyle(cell As Range)
                     rattrapageCell.Font.Color = COLOR_TXT_WHITE
                 End If
             End If
-        ElseIf v >= 5 And v <= 9 Then
+        Else
             ' Vert, texte blanc
             cell.Interior.Color = RGB(0, 176, 80)
             cell.Font.Color = COLOR_TXT_WHITE
