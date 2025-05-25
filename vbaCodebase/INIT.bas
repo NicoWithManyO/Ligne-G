@@ -14,11 +14,13 @@ Public Sub initializeComponents()
         Debug.Print "[initializeComponents] ERREUR : Feuille PROD non trouvée"
         Exit Sub
     End If
-    
+
+
     ' Initialisation des ranges
-    Call modRangesInit.initShiftRanges
-    Call modRangesInit.defineRollNamedRanges
+    Call initShiftRanges
+    Call defineRollNamedRanges
     Call FormatRollLayout
+    
     Debug.Print "[initializeComponents] Initialisation terminée"
 
 End Sub
