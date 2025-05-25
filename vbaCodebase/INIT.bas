@@ -23,3 +23,14 @@ Public Sub initializeComponents()
 
 End Sub
 
+Public Sub SetTargetLength(ws As Worksheet, targetLength As Double)
+    Application.EnableEvents = False
+    ws.Unprotect
+    ws.Range(TARGET_LENGTH_ADDR).Value = targetLength
+    ws.Range(TARGET_LENGTH_ADDR).Locked = True
+    ws.Protect
+    Debug.Print "[SetTargetLength] Nouvelle longueur cible = " & targetLength
+    Call initializeComponents
+    Application.EnableEvents = True
+End Sub
+

@@ -3,12 +3,13 @@ Option Explicit
 
 ' Couleurs principales (en BGR pour VBA)
 Public Const COLOR_BG_WHITE As Long = &HFFFFFF
-Public Const COLOR_BG_GRAY As Long = &H808080 ' #808080
+Public Const COLOR_BG_GRAY As Long = &H808080 ' #808080 (gris foncé, zone inactive)
+Public Const COLOR_BG_GRAY_LIGHT As Long = &HA6A6A6 ' #A6A6A6 (gris clair, lengthCols)
 Public Const COLOR_BG_BLUE_LIGHT As Long = &HF8E9DA ' #DAE9F8 en BGR
 Public Const COLOR_TXT_BLUE As Long = &H985C21 ' #215C98 en BGR
 Public Const COLOR_TXT_WHITE As Long = &HFFFFFF
 Public Const COLOR_TXT_RED As Long = &H0000FF ' #FF0000 en BGR
-Public Const COLOR_TXT_ORANGE As Long = &H00A5FF ' #FFA500 en BGR
+Public Const COLOR_TXT_ORANGE As Long = &HC0FF00 ' #FFC000 en BGR
 
 ' Applique le style "zone active" (fond blanc, texte bleu)
 Public Sub ApplyActiveStyle(rng As Range)
@@ -17,38 +18,155 @@ Public Sub ApplyActiveStyle(rng As Range)
     rng.Locked = True
 End Sub
 
-' Applique le style "lengthCols" (fond gris, texte bleu)
+' Applique le style "lengthCols" (fond gris clair, texte bleu)
 Public Sub ApplyLengthStyle(rng As Range)
-    rng.Interior.Color = COLOR_BG_GRAY
+    rng.Interior.Color = COLOR_BG_GRAY_LIGHT
     rng.Font.Color = COLOR_TXT_BLUE
 End Sub
 
 ' Applique le style "thickness" selon la valeur (vide, OK, NOK, orange si [4,5[ ou >9)
 Public Sub ApplyThicknessStyle(cell As Range)
-    Const COLOR_TXT_ORANGE As Long = &H00A5FF ' #FFA500 en BGR
-    If Trim(cell.Value & "") = "" Then
-        cell.Interior.Color = COLOR_BG_BLUE_LIGHT
-        cell.Font.Color = COLOR_TXT_BLUE
-        Debug.Print "[ApplyThicknessStyle] vide : " & cell.Address
+    Dim ws As Worksheet
+    Set ws = cell.Worksheet
+
+    ' Déprotéger si nécessaire
+    If ws.ProtectContents Then
+        ws.Unprotect
+    End If
+
+    If IsEmpty(cell.Value) Or Trim(cell.Value) = "" Then
+        ' Cas cellule vide : fond bleu, texte bleu
+        cell.Interior.Color = COLOR_BG_BLUE_LIGHT   ' #DAE9F8 en BGR
+        cell.Font.Color = COLOR_TXT_BLUE   ' #215C98 en BGR
+        
+        ' Si c'est une cellule officielle qui devient vide, on désactive la cellule de rattrapage
+        If Not Intersect(cell, Range("leftThicknessCels")) Is Nothing Or _
+           Not Intersect(cell, Range("rightThicknessCels")) Is Nothing Then
+            ' Déterminer la cellule de rattrapage potentielle
+            Dim rattrapageCell As Range
+            Dim isLastRow As Boolean
+            isLastRow = cell.Row = Range("activeRollArea").Rows(Range("activeRollArea").Rows.Count).Row
+            
+            If isLastRow Then
+                Set rattrapageCell = cell.Offset(-1, 0)
+            Else
+                Set rattrapageCell = cell.Offset(1, 0)
+            End If
+            
+            ' Vérifier si la cellule de rattrapage existe dans les plages appropriées
+            Dim isValidRattrapage As Boolean
+            isValidRattrapage = False
+            On Error Resume Next
+            isValidRattrapage = (Not Intersect(rattrapageCell, Range("leftSecThicknessCels")) Is Nothing) Or _
+                                (Not Intersect(rattrapageCell, Range("rightSecThicknessCels")) Is Nothing)
+            On Error GoTo 0
+            If isValidRattrapage Then
+                ' Désactiver la cellule de rattrapage
+                rattrapageCell.Locked = True
+                rattrapageCell.Interior.Color = COLOR_BG_WHITE
+                rattrapageCell.Font.Color = COLOR_TXT_WHITE
+            End If
+        End If
     Else
         Dim v As Double
         v = Val(cell.Value)
-        Debug.Print "[ApplyThicknessStyle] valeur : " & cell.Address & " = '" & cell.Value & "' (Val=" & v & ", Type=" & TypeName(cell.Value) & ")"
-        If v >= 4 And v < 5 Then
-            cell.Interior.Color = RGB(0, 176, 80)   ' Vert
-            cell.Font.Color = COLOR_TXT_ORANGE
-        ElseIf v > 9 Then
-            cell.Interior.Color = RGB(0, 176, 80)   ' Vert
-            cell.Font.Color = COLOR_TXT_ORANGE
-        ElseIf v >= 4 Then
-            cell.Interior.Color = RGB(0, 176, 80)   ' Vert
+        If v < 4 Then
+            ' Rouge, texte blanc
+            cell.Interior.Color = RGB(255, 0, 0)
             cell.Font.Color = COLOR_TXT_WHITE
-        ElseIf v > 0 Then
-            cell.Interior.Color = RGB(255, 0, 0)    ' Rouge
+            
+            ' Vérifier si c'est une cellule de mesure (pas de rattrapage)
+            If Not Intersect(cell, Range("leftSecThicknessCels")) Is Nothing Or _
+               Not Intersect(cell, Range("rightSecThicknessCels")) Is Nothing Then
+                ' Ne rien faire pour les cellules de rattrapage
+            Else
+                ' Déterminer la cellule de rattrapage potentielle
+                isLastRow = cell.Row = Range("activeRollArea").Rows(Range("activeRollArea").Rows.Count).Row
+                
+                If isLastRow Then
+                    Set rattrapageCell = cell.Offset(-1, 0)
+                Else
+                    Set rattrapageCell = cell.Offset(1, 0)
+                End If
+                
+                ' Vérifier si la cellule de rattrapage existe dans les plages appropriées
+                isValidRattrapage = False
+                On Error Resume Next
+                isValidRattrapage = (Not Intersect(rattrapageCell, Range("leftSecThicknessCels")) Is Nothing) Or _
+                                    (Not Intersect(rattrapageCell, Range("rightSecThicknessCels")) Is Nothing)
+                On Error GoTo 0
+                If isValidRattrapage Then
+                    ' La cellule de rattrapage existe, on peut l'activer
+                    rattrapageCell.Locked = False
+                    Call ApplyThicknessStyle(rattrapageCell)
+                End If
+            End If
+        ElseIf (v >= 4 And v < 5) Or v > 9 Then
+            ' Vert, texte orange
+            cell.Interior.Color = RGB(0, 176, 80)
+            cell.Font.Color = RGB(255, 192, 0)
+            
+            ' Si la cellule devient OK, on désactive la cellule de rattrapage
+            If Not Intersect(cell, Range("leftThicknessCels")) Is Nothing Or _
+               Not Intersect(cell, Range("rightThicknessCels")) Is Nothing Then
+                ' Déterminer la cellule de rattrapage potentielle
+                isLastRow = cell.Row = Range("activeRollArea").Rows(Range("activeRollArea").Rows.Count).Row
+                
+                If isLastRow Then
+                    Set rattrapageCell = cell.Offset(-1, 0)
+                Else
+                    Set rattrapageCell = cell.Offset(1, 0)
+                End If
+                
+                ' Vérifier si la cellule de rattrapage existe dans les plages appropriées
+                isValidRattrapage = False
+                On Error Resume Next
+                isValidRattrapage = (Not Intersect(rattrapageCell, Range("leftSecThicknessCels")) Is Nothing) Or _
+                                    (Not Intersect(rattrapageCell, Range("rightSecThicknessCels")) Is Nothing)
+                On Error GoTo 0
+                If isValidRattrapage Then
+                    ' Désactiver la cellule de rattrapage
+                    rattrapageCell.Locked = True
+                    rattrapageCell.Interior.Color = COLOR_BG_WHITE
+                    rattrapageCell.Font.Color = COLOR_TXT_WHITE
+                End If
+            End If
+        ElseIf v >= 5 And v <= 9 Then
+            ' Vert, texte blanc
+            cell.Interior.Color = RGB(0, 176, 80)
             cell.Font.Color = COLOR_TXT_WHITE
-        Else
-            Debug.Print "[ApplyThicknessStyle] non numérique ou <=0 : " & cell.Address & " = '" & cell.Value & "'"
+            
+            ' Si la cellule devient OK, on désactive la cellule de rattrapage
+            If Not Intersect(cell, Range("leftThicknessCels")) Is Nothing Or _
+               Not Intersect(cell, Range("rightThicknessCels")) Is Nothing Then
+                ' Déterminer la cellule de rattrapage potentielle
+                isLastRow = cell.Row = Range("activeRollArea").Rows(Range("activeRollArea").Rows.Count).Row
+                
+                If isLastRow Then
+                    Set rattrapageCell = cell.Offset(-1, 0)
+                Else
+                    Set rattrapageCell = cell.Offset(1, 0)
+                End If
+                
+                ' Vérifier si la cellule de rattrapage existe dans les plages appropriées
+                isValidRattrapage = False
+                On Error Resume Next
+                isValidRattrapage = (Not Intersect(rattrapageCell, Range("leftSecThicknessCels")) Is Nothing) Or _
+                                    (Not Intersect(rattrapageCell, Range("rightSecThicknessCels")) Is Nothing)
+                On Error GoTo 0
+                If isValidRattrapage Then
+                    ' Désactiver la cellule de rattrapage
+                    rattrapageCell.Locked = True
+                    rattrapageCell.Interior.Color = COLOR_BG_WHITE
+                    rattrapageCell.Font.Color = COLOR_TXT_WHITE
+                End If
+            End If
         End If
+    End If
+
+    ' Reproter si elle était protégée au départ
+    If ws.ProtectContents Then
+        ws.Protect
     End If
 End Sub
 
@@ -95,7 +213,7 @@ Public Sub FormatRollLayout()
         Call ApplyActiveStyle(rngActive)
     End If
 
-    ' 3. Colonnes lengthCols dans la zone active (fond gris, texte bleu, verrouillée)
+    ' 3. Colonnes lengthCols dans la zone active (fond gris clair, texte bleu, verrouillée)
     Dim rngLength As Range
     On Error Resume Next
     Set rngLength = Application.Intersect( _
@@ -111,6 +229,12 @@ Public Sub FormatRollLayout()
     thickNames = Array("leftThicknessCels", "rightThicknessCels")
     Dim i As Integer
     Dim thickName As String, refString As String
+    
+    ' Déprotéger une seule fois avant la boucle si nécessaire
+    If ws.ProtectContents Then
+        ws.Unprotect
+    End If
+    
     For i = LBound(thickNames) To UBound(thickNames)
         thickName = thickNames(i)
         If NameExists(thickName) Then
@@ -131,6 +255,11 @@ Public Sub FormatRollLayout()
             End If
         End If
     Next i
+    
+    ' Reproter après la boucle si elle était protégée au départ
+    If ws.ProtectContents Then
+        ws.Protect
+    End If
 
     ' 5. Déverrouille les colonnes de défauts dans la zone active
     Dim defNames As Variant

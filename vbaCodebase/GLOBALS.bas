@@ -5,7 +5,7 @@ Option Explicit
 Public Const TO_INJECT_PATH As String = "vbaCodebase\toInject\"
 
 ' === Feuille principale de production
-Public PRODUCTION_WS As Worksheet
+    Public PRODUCTION_WS As Worksheet
 
 ' === Adresse de la zone maximale du rouleau
 Public Const MAX_ROLL_ADDR As String = "AJ68:BD167"

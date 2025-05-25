@@ -2,6 +2,9 @@ Attribute VB_Name = "PROD"
 
 Option Explicit
 
+' === Adresse de la cellule contenant la longueur cible du rouleau
+' (Constante globale utilisée)
+
 Private Sub Worksheet_Change(ByVal Target As Range)
     On Error GoTo SafeExit
     Application.EnableEvents = False
@@ -32,38 +35,14 @@ Private Sub Worksheet_Change(ByVal Target As Range)
         End If
     Next cell
     PRODUCTION_WS.Protect
-SafeExit:
-    Application.EnableEvents = True
-End Sub
 
-Public Sub ApplyThicknessStyle(cell As Range)
-    Dim ws As Worksheet
-    Set ws = cell.Worksheet
-
-    ws.Unprotect
-
-    If IsEmpty(cell.Value) Or Trim(cell.Value) = "" Then
-        ' Cas cellule vide : fond bleu, texte bleu
-        cell.Interior.Color = RGB(0, 112, 192)   ' Bleu
-        cell.Font.Color = RGB(255, 255, 255)
-    Else
-        Dim v As Double
-        v = Val(cell.Value)
-        If v < 4 Then
-            ' Rouge, texte blanc
-            cell.Interior.Color = RGB(255, 0, 0)
-            cell.Font.Color = RGB(255, 255, 255)
-        ElseIf (v >= 4 And v < 5) Or v > 9 Then
-            ' Vert, texte orange
-            cell.Interior.Color = RGB(0, 176, 80)
-            cell.Font.Color = RGB(255, 192, 0)
-        ElseIf v >= 5 And v <= 9 Then
-            ' Vert, texte blanc
-            cell.Interior.Color = RGB(0, 176, 80)
-            cell.Font.Color = RGB(255, 255, 255)
-        End If
+    ' Si la cellule modifiée est la longueur cible
+    If Not Intersect(Target, Range(TARGET_LENGTH_ADDR)) Is Nothing Then
+        ' Lancer l'initialisation des composants
+        Call initializeComponents
     End If
 
-    ws.Protect
+SafeExit:
+    Application.EnableEvents = True
 End Sub
 
