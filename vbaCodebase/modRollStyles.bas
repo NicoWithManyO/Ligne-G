@@ -69,97 +69,66 @@ Public Sub ApplyThicknessStyle(cell As Range)
         End If
     Else
         Dim v As Double
-        v = Val(cell.Value)
+        v = CDbl(cell.Value)
         If v < Range("ctrlMinThickness").Value Then
             ' Rouge, texte blanc
             cell.Interior.Color = RGB(255, 0, 0)
             cell.Font.Color = COLOR_TXT_WHITE
-            
-            ' Vérifier si c'est une cellule de mesure (pas de rattrapage)
+
+            ' Gestion du rattrapage uniquement en zone rouge
             If Not Intersect(cell, Range("leftSecThicknessCels")) Is Nothing Or _
                Not Intersect(cell, Range("rightSecThicknessCels")) Is Nothing Then
                 ' Ne rien faire pour les cellules de rattrapage
             Else
-                ' Déterminer la cellule de rattrapage potentielle
                 isLastRow = cell.Row = Range("activeRollArea").Rows(Range("activeRollArea").Rows.Count).Row
-                
                 If isLastRow Then
                     Set rattrapageCell = cell.Offset(-1, 0)
                 Else
                     Set rattrapageCell = cell.Offset(1, 0)
                 End If
-                
-                ' Vérifier si la cellule de rattrapage existe dans les plages appropriées
                 isValidRattrapage = False
                 On Error Resume Next
                 isValidRattrapage = (Not Intersect(rattrapageCell, Range("leftSecThicknessCels")) Is Nothing) Or _
                                     (Not Intersect(rattrapageCell, Range("rightSecThicknessCels")) Is Nothing)
                 On Error GoTo 0
                 If isValidRattrapage Then
-                    ' La cellule de rattrapage existe, on peut l'activer
                     rattrapageCell.Locked = False
                     Call ApplyThicknessStyle(rattrapageCell)
                 End If
             End If
-        ElseIf (v < Range("ctrlWarnThickness").Value) Or (v > 9) Then
-            ' Vert, texte orange
-            cell.Interior.Color = RGB(0, 176, 80)
-            cell.Font.Color = RGB(255, 192, 0)
-            
-            ' Si la cellule devient OK, on désactive la cellule de rattrapage
-            If Not Intersect(cell, Range("leftThicknessCels")) Is Nothing Or _
-               Not Intersect(cell, Range("rightThicknessCels")) Is Nothing Then
-                ' Déterminer la cellule de rattrapage potentielle
+        Else
+            ' Dans tous les autres cas, verrouiller et blanchir la cellule de rattrapage si elle existe
+            If Not Intersect(cell, Range("leftSecThicknessCels")) Is Nothing Or _
+               Not Intersect(cell, Range("rightSecThicknessCels")) Is Nothing Then
+                ' Ne rien faire pour les cellules de rattrapage
+            Else
                 isLastRow = cell.Row = Range("activeRollArea").Rows(Range("activeRollArea").Rows.Count).Row
-                
                 If isLastRow Then
                     Set rattrapageCell = cell.Offset(-1, 0)
                 Else
                     Set rattrapageCell = cell.Offset(1, 0)
                 End If
-                
-                ' Vérifier si la cellule de rattrapage existe dans les plages appropriées
                 isValidRattrapage = False
                 On Error Resume Next
                 isValidRattrapage = (Not Intersect(rattrapageCell, Range("leftSecThicknessCels")) Is Nothing) Or _
                                     (Not Intersect(rattrapageCell, Range("rightSecThicknessCels")) Is Nothing)
                 On Error GoTo 0
                 If isValidRattrapage Then
-                    ' Désactiver la cellule de rattrapage
                     rattrapageCell.Locked = True
                     rattrapageCell.Interior.Color = COLOR_BG_WHITE
                     rattrapageCell.Font.Color = COLOR_TXT_WHITE
                 End If
             End If
-        Else
-            ' Vert, texte blanc
-            cell.Interior.Color = RGB(0, 176, 80)
-            cell.Font.Color = COLOR_TXT_WHITE
-            
-            ' Si la cellule devient OK, on désactive la cellule de rattrapage
-            If Not Intersect(cell, Range("leftThicknessCels")) Is Nothing Or _
-               Not Intersect(cell, Range("rightThicknessCels")) Is Nothing Then
-                ' Déterminer la cellule de rattrapage potentielle
-                isLastRow = cell.Row = Range("activeRollArea").Rows(Range("activeRollArea").Rows.Count).Row
-                
-                If isLastRow Then
-                    Set rattrapageCell = cell.Offset(-1, 0)
-                Else
-                    Set rattrapageCell = cell.Offset(1, 0)
-                End If
-                
-                ' Vérifier si la cellule de rattrapage existe dans les plages appropriées
-                isValidRattrapage = False
-                On Error Resume Next
-                isValidRattrapage = (Not Intersect(rattrapageCell, Range("leftSecThicknessCels")) Is Nothing) Or _
-                                    (Not Intersect(rattrapageCell, Range("rightSecThicknessCels")) Is Nothing)
-                On Error GoTo 0
-                If isValidRattrapage Then
-                    ' Désactiver la cellule de rattrapage
-                    rattrapageCell.Locked = True
-                    rattrapageCell.Interior.Color = COLOR_BG_WHITE
-                    rattrapageCell.Font.Color = COLOR_TXT_WHITE
-                End If
+
+            ' Couleurs normales selon la zone
+            If (v >= Range("ctrlMinThickness").Value And v < Range("ctrlWarnThickness").Value) Or v > 9 Then
+                ' Vert, texte orange
+                cell.Interior.Color = RGB(0, 176, 80)
+                cell.Font.Color = RGB(255, 192, 0)
+            Else
+                ' Vert, texte blanc
+                cell.Interior.Color = RGB(0, 176, 80)
+                cell.Font.Color = COLOR_TXT_WHITE
             End If
         End If
     End If
