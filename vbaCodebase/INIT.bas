@@ -18,6 +18,7 @@ Public Sub initializeComponents()
 
     ' Initialisation des ranges
     Call initShiftRanges
+    Call initOFRanges
     Call defineRollNamedRanges
     Call FormatRollLayout
     Call initCtrlLimitValues
@@ -39,6 +40,26 @@ Public Sub SetTargetLength(ws As Worksheet, targetLength As Double)
     ws.Protect
     Debug.Print "[SetTargetLength] Nouvelle longueur cible = " & targetLength
     Call initializeComponents
+    Application.EnableEvents = True
+End Sub
+
+Public Sub SetOFNumber(ws As Worksheet, ofNumber As Long)
+    Application.EnableEvents = False
+    ws.Unprotect
+    ws.Range(RANGE_OF_NUMBER).Value = ofNumber
+    ws.Range(RANGE_OF_NUMBER).Locked = True
+    ws.Protect
+    Debug.Print "[SetOFNumber] Nouveau numéro OF = " & ofNumber
+    Application.EnableEvents = True
+End Sub
+
+Public Sub SetCutOFNumber(ws As Worksheet, cutOfNumber As Long)
+    Application.EnableEvents = False
+    ws.Unprotect
+    ws.Range(RANGE_CUT_OF_NUMBER).Value = cutOfNumber
+    ws.Range(RANGE_CUT_OF_NUMBER).Locked = True
+    ws.Protect
+    Debug.Print "[SetCutOFNumber] Nouveau numéro OF de coupe = " & cutOfNumber
     Application.EnableEvents = True
 End Sub
 

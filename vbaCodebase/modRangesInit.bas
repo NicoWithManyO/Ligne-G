@@ -1,5 +1,3 @@
-Attribute VB_Name = "modRangesInit"
-
 Option Explicit
 
 ' Constantes pour les noms des ranges
@@ -13,6 +11,8 @@ Const RANGE_SHIFT_LG_ENROULEE_PRISE_POSTE As String = "shiftLgEnrouleePrisePoste
 Const RANGE_SHIFT_MACHINE_FIN_POSTE As String = "shiftMachineFinPoste"
 Const RANGE_SHIFT_LG_ENROULEE_FIN_POSTE As String = "shiftLgEnrouleeFinPoste"
 Const RANGE_SHIFT_COMMENTAIRES As String = "shiftCommentaires"
+Const RANGE_OF_NUMBER As String = "OFNumber"
+Const RANGE_CUT_OF_NUMBER As String = "CutOFNumber"
 
 ' Constantes pour les ranges du rouleau
 Const ROLL_START_ROW As Long = 68
@@ -340,5 +340,29 @@ Public Sub initCtrlLimitValues()
     ' Affichage des adresses des ranges
     Debug.Print "[initCtrlLimitValues] -> " & RANGE_CTRL_MIN_THICKNESS & " : BK59 (seuil rouge)"
     Debug.Print "[initCtrlLimitValues] -> " & RANGE_CTRL_WARN_THICKNESS & " : BJ59 (seuil orange)"
+End Sub
+
+' Initialise les ranges nommées pour les numéros OF
+' @pre : PRODUCTION_WS doit être initialisé
+' @return : aucun
+Public Sub initOFRanges()
+    If PRODUCTION_WS Is Nothing Then
+        Debug.Print "[initOFRanges] ERREUR : PRODUCTION_WS non initialisé"
+        Exit Sub
+    End If
+    
+    ' Suppression des ranges existantes pour éviter les doublons
+    On Error Resume Next
+    ThisWorkbook.Names(RANGE_OF_NUMBER).Delete
+    ThisWorkbook.Names(RANGE_CUT_OF_NUMBER).Delete
+    On Error GoTo 0
+    
+    ' Création des nouvelles ranges
+    ThisWorkbook.Names.Add Name:=RANGE_OF_NUMBER, RefersTo:=PRODUCTION_WS.Range("BH69")
+    ThisWorkbook.Names.Add Name:=RANGE_CUT_OF_NUMBER, RefersTo:=PRODUCTION_WS.Range("BH73")
+    
+    ' Affichage des adresses des ranges
+    Debug.Print "[initOFRanges] -> " & RANGE_OF_NUMBER & " : BH69"
+    Debug.Print "[initOFRanges] -> " & RANGE_CUT_OF_NUMBER & " : BH73"
 End Sub
 

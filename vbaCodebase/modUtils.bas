@@ -20,6 +20,43 @@ Public Sub PromptAndSetTargetLength()
     Call SetTargetLength(ws, val)
 End Sub
 
+Public Sub PromptAndSetOFNumber()
+    Dim ws As Worksheet
+    Set ws = PRODUCTION_WS
+    Dim userInput As Variant
+    userInput = InputBox("Modifier le numéro OF ?", "Set OF Number")
+    If userInput = "" Then Exit Sub
+    If Not IsNumeric(userInput) Then
+        MsgBox "Une valeur numérique est attendue", vbExclamation
+        Exit Sub
+    End If
+    Dim val As Long
+    val = CLng(userInput)
+    If val < 1 Then
+        MsgBox "La valeur doit être supérieure à 0", vbExclamation
+        Exit Sub
+    End If
+    Call SetOFNumber(ws, val)
+End Sub
+
+Public Sub PromptAndSetCutOFNumber()
+    Dim ws As Worksheet
+    Set ws = PRODUCTION_WS
+    Dim userInput As Variant
+    userInput = InputBox("Modifier le numéro OF de coupe ?", "Set Cut OF Number")
+    If userInput = "" Then Exit Sub
+    If Not IsNumeric(userInput) Then
+        MsgBox "Une valeur numérique est attendue", vbExclamation
+        Exit Sub
+    End If
+    Dim val As Long
+    val = CLng(userInput)
+    If val < 1 Then
+        MsgBox "La valeur doit être supérieure à 0", vbExclamation
+        Exit Sub
+    End If
+    Call SetCutOFNumber(ws, val)
+End Sub
 
 ' Limite la zone de défilement à la ligne 120
 Public Sub LimitScrollArea()
