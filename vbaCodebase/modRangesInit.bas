@@ -342,4 +342,3 @@ Public Sub initCtrlLimitValues()
     Debug.Print "[initCtrlLimitValues] -> " & RANGE_CTRL_WARN_THICKNESS & " : BJ59 (seuil orange)"
 End Sub
 
-
