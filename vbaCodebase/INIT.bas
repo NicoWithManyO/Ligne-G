@@ -24,6 +24,11 @@ Public Sub initializeComponents()
     
     Debug.Print "[initializeComponents] Initialisation terminée"
 
+    Call IsRollConformDefects
+    Call saveDetectedDefects
+
+    Call IsRollConformThickness
+    Call saveDetectedThickness
 End Sub
 
 Public Sub SetTargetLength(ws As Worksheet, targetLength As Double)
