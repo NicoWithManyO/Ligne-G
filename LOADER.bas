@@ -7,9 +7,8 @@ Const vbaCodebaseDir As String = "vbaCodebase"
 Const vbaToInjectDir As String = "vbaCodebase\toInject"
 
 
-
 ' Charge tous les modules .bas et .cls depuis le dossier vbaCodebase
-' @pre : le dossier doit exister ï¿½ cï¿½tï¿½ du classeur Excel
+' @pre : le dossier doit exister à côté du classeur Excel
 ' @return : aucun
 ' Charge tous les modules (.bas, .cls) depuis le dossier /vbaCodebase
 ' Supprime tous les composants VBA sauf ce module (THIS_MODULE)
@@ -46,9 +45,9 @@ Public Sub loadModulesFromFolder()
 End Sub
 
 
-' Importe tous les modules .bas prï¿½sents dans /vbaCodebase/toInject/
+' Importe tous les modules .bas présents dans /vbaCodebase/toInject/
 ' - Injecte ThisWorkbook.bas dans le module objet ThisWorkbook
-' - Les autres .bas sont importï¿½s normalement (remplacement si existe)
+' - Les autres .bas sont importés normalement (remplacement si existe)
 Public Sub injectModulesFromToInject()
     Dim vbProj As VBIDE.VBProject: Set vbProj = ThisWorkbook.VBProject
     Dim fso As Object: Set fso = CreateObject("Scripting.FileSystemObject")
@@ -91,13 +90,13 @@ Public Sub injectModulesFromToInject()
                         vbProj.VBComponents.Remove vbProj.VBComponents(baseName)
                         On Error GoTo 0
                         vbProj.VBComponents.Import cheminFichier
-                        Debug.Print "[injectModulesFromToInject] importï¿½ -> " & fichier.Name
+                        Debug.Print "[injectModulesFromToInject] importé -> " & fichier.Name
                     End If
             End Select
         End If
     Next fichier
 
-    MsgBox "Injection terminï¿½e -> modules chargï¿½s depuis toInject", vbInformation
+    MsgBox "Injection terminée -> modules chargés depuis toInject", vbInformation
 End Sub
 
 
