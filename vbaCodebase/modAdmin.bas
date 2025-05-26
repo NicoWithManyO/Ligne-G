@@ -76,7 +76,6 @@ Public Sub ClearThicknessCells()
     Call RewriteActiveRollLengths
 End Sub
 
-
 ' Vide toutes les cellules de la zone active du rouleau (activeRollArea)
 ' @but : Réinitialiser complètement la zone de saisie du rouleau
 ' @param Aucun
@@ -133,7 +132,11 @@ Public Sub RewriteActiveRollLengths()
     
 End Sub 
 
-
+' Sauvegarde le shift courant dans la feuille dataShifts
+' @but : Créer un objet Shift à partir de la feuille de production et l'ajouter à dataShifts
+' @param Aucun
+' @return Aucun
+' @pré : PRODUCTION_WS doit être initialisé et la feuille dataShifts doit exister
 Public Sub SaveShiftFromButton()
     Dim s As Shift
     Set s = New Shift

@@ -367,3 +367,47 @@ Public Sub initOFRanges()
     Debug.Print "[initOFRanges] -> " & RANGE_CUT_OF_NUMBER & " : BH73"
 End Sub
 
+' Initialise les ranges nommées pour les propriétés principales du rouleau (PRODUCT_ROLL_XXX)
+' @but : Créer ou mettre à jour les ranges nommées pour chaque propriété principale du rouleau
+' @param Aucun
+' @return Aucun
+' @pré : PRODUCTION_WS doit être initialisé
+Public Sub initProductRollRanges()
+    If PRODUCTION_WS Is Nothing Then
+        Debug.Print "[initProductRollRanges] ERREUR : PRODUCTION_WS non initialisé"
+        Exit Sub
+    End If
+
+    ' Suppression des ranges existantes pour éviter les doublons
+    On Error Resume Next
+    ThisWorkbook.Names("PRODUCT_ROLL_ID").Delete
+    ThisWorkbook.Names("PRODUCT_ROLL_OF").Delete
+    ThisWorkbook.Names("PRODUCT_ROLL_NUM").Delete
+    ThisWorkbook.Names("PRODUCT_ROLL_SHIFT").Delete
+    ThisWorkbook.Names("PRODUCT_ROLL_TOTAL_MASS").Delete
+    ThisWorkbook.Names("PRODUCT_ROLL_TUBE_MASS").Delete
+    ThisWorkbook.Names("PRODUCT_ROLL_LENGTH").Delete
+    ThisWorkbook.Names("PRODUCT_ROLL_STATUS").Delete
+    On Error GoTo 0
+
+    ' Création des nouvelles ranges
+    ThisWorkbook.Names.Add Name:="PRODUCT_ROLL_ID", RefersTo:=PRODUCTION_WS.Range("BH79")
+    ThisWorkbook.Names.Add Name:="PRODUCT_ROLL_OF", RefersTo:=PRODUCTION_WS.Range("BH69")
+    ThisWorkbook.Names.Add Name:="PRODUCT_ROLL_NUM", RefersTo:=PRODUCTION_WS.Range("BH78")
+    ThisWorkbook.Names.Add Name:="PRODUCT_ROLL_SHIFT", RefersTo:=PRODUCTION_WS.Range("AC55")
+    ThisWorkbook.Names.Add Name:="PRODUCT_ROLL_TOTAL_MASS", RefersTo:=PRODUCTION_WS.Range("BH81")
+    ThisWorkbook.Names.Add Name:="PRODUCT_ROLL_TUBE_MASS", RefersTo:=PRODUCTION_WS.Range("BH80")
+    ThisWorkbook.Names.Add Name:="PRODUCT_ROLL_LENGTH", RefersTo:=PRODUCTION_WS.Range("BH82")
+    ThisWorkbook.Names.Add Name:="PRODUCT_ROLL_STATUS", RefersTo:=PRODUCTION_WS.Range("BJ78")
+
+    ' Affichage des adresses des ranges
+    Debug.Print "[initProductRollRanges] -> PRODUCT_ROLL_ID : BH79"
+    Debug.Print "[initProductRollRanges] -> PRODUCT_ROLL_OF : BH69"
+    Debug.Print "[initProductRollRanges] -> PRODUCT_ROLL_NUM : BH78"
+    Debug.Print "[initProductRollRanges] -> PRODUCT_ROLL_SHIFT : AC55"
+    Debug.Print "[initProductRollRanges] -> PRODUCT_ROLL_TOTAL_MASS : BH81"
+    Debug.Print "[initProductRollRanges] -> PRODUCT_ROLL_TUBE_MASS : BH80"
+    Debug.Print "[initProductRollRanges] -> PRODUCT_ROLL_LENGTH : BH82"
+    Debug.Print "[initProductRollRanges] -> PRODUCT_ROLL_STATUS : BJ78"
+End Sub
+

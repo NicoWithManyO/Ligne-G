@@ -2,7 +2,10 @@ Attribute VB_Name = "modQuality"
 Option Explicit
 
 ' Vérifie la conformité du rouleau uniquement sur les défauts (pas l'épaisseur)
-' Retourne True si conforme, False sinon. Motif en out param.
+' @but : Retourne True si le rouleau est conforme sur les défauts, False sinon. Motif en out param.
+' @param motif (ByRef, optionnel) : chaîne de motif de non-conformité
+' @return Boolean : True si conforme, False sinon
+' @pré : PRODUCTION_WS doit être initialisé et les plages de défauts doivent exister
 Public Function IsRollConformDefects(Optional ByRef motif As String = "") As Boolean
     Dim ws As Worksheet: Set ws = PRODUCTION_WS
     If ws Is Nothing Then motif = "Feuille PROD non initialisée": IsRollConformDefects = False: Exit Function
@@ -79,6 +82,11 @@ Public Function IsRollConformDefects(Optional ByRef motif As String = "") As Boo
     IsRollConformDefects = isConform
 End Function
 
+' Sauvegarde les défauts détectés dans la feuille de production
+' @but : Parcourt les colonnes de défauts et sauvegarde les défauts détectés dans une cellule dédiée
+' @param Aucun
+' @return Aucun
+' @pré : PRODUCTION_WS doit être initialisé et les plages de défauts doivent exister
 Public Sub saveDetectedDefects()
     Dim ws As Worksheet: Set ws = PRODUCTION_WS
     If ws Is Nothing Then Exit Sub
@@ -118,6 +126,11 @@ Public Sub saveDetectedDefects()
     If wasProtected Then ws.Protect
 End Sub
 
+' Vérifie la conformité du rouleau sur l'épaisseur
+' @but : Retourne True si le rouleau est conforme sur l'épaisseur, False sinon. Motif en out param.
+' @param motif (ByRef, optionnel) : chaîne de motif de non-conformité
+' @return Boolean : True si conforme, False sinon
+' @pré : PRODUCTION_WS doit être initialisé et les plages d'épaisseur doivent exister
 Public Function IsRollConformThickness(Optional ByRef motif As String = "") As Boolean
     Dim ws As Worksheet: Set ws = PRODUCTION_WS
     If ws Is Nothing Then motif = "Feuille PROD non initialisée": IsRollConformThickness = False: Exit Function
@@ -205,6 +218,11 @@ Public Function IsRollConformThickness(Optional ByRef motif As String = "") As B
     IsRollConformThickness = isConform
 End Function
 
+' Sauvegarde les épaisseurs détectées dans la feuille de production
+' @but : Parcourt les colonnes d'épaisseur et sauvegarde les valeurs NOK dans une cellule dédiée
+' @param Aucun
+' @return Aucun
+' @pré : PRODUCTION_WS doit être initialisé et les plages d'épaisseur doivent exister
 Public Sub saveDetectedThickness()
     Dim ws As Worksheet: Set ws = PRODUCTION_WS
     If ws Is Nothing Then Exit Sub

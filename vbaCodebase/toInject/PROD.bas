@@ -4,7 +4,6 @@ Option Explicit
 
 ' === Adresse de la cellule contenant la longueur cible du rouleau
 ' (Constante globale utilisée)
-
 Private Sub Worksheet_Change(ByVal Target As Range)
     On Error GoTo SafeExit
     Application.EnableEvents = False

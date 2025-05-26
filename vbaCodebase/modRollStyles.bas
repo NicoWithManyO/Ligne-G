@@ -12,19 +12,33 @@ Public Const COLOR_TXT_RED As Long = &H0000FF ' #FF0000 en BGR
 Public Const COLOR_TXT_ORANGE As Long = &HC0FF00 ' #FFC000 en BGR
 
 ' Applique le style "zone active" (fond blanc, texte bleu)
+' @but : Appliquer le style zone active à une plage
+' @param rng (Range) : plage à styler
+' @return Aucun
+' @pré : rng doit être valide
 Public Sub ApplyActiveStyle(rng As Range)
     rng.Interior.Color = COLOR_BG_WHITE
     rng.Font.Color = COLOR_TXT_BLUE
     rng.Locked = True
 End Sub
 
+
 ' Applique le style "lengthCols" (fond gris clair, texte bleu)
+' @but : Appliquer le style lengthCols à une plage
+' @param rng (Range) : plage à styler
+' @return Aucun
+' @pré : rng doit être valide
 Public Sub ApplyLengthStyle(rng As Range)
     rng.Interior.Color = COLOR_BG_GRAY_LIGHT
     rng.Font.Color = COLOR_TXT_BLUE
 End Sub
 
+
 ' Applique le style "thickness" selon la valeur (vide, OK, NOK, orange si [4,5[ ou >9)
+' @but : Appliquer le style d'épaisseur à une cellule selon sa valeur
+' @param cell (Range) : cellule à styler
+' @return Aucun
+' @pré : cell doit être valide
 Public Sub ApplyThicknessStyle(cell As Range)
     Dim ws As Worksheet
     Set ws = cell.Worksheet
@@ -139,14 +153,24 @@ Public Sub ApplyThicknessStyle(cell As Range)
     End If
 End Sub
 
+
 ' Applique le style "zone inactive" (fond gris, texte gris)
+' @but : Appliquer le style zone inactive à une plage
+' @param rng (Range) : plage à styler
+' @return Aucun
+' @pré : rng doit être valide
 Public Sub ApplyInactiveStyle(rng As Range)
     rng.Interior.Color = COLOR_BG_GRAY
     rng.Font.Color = COLOR_BG_GRAY
     rng.Locked = True
 End Sub
 
+
 ' Vérifie si un nom existe dans le classeur
+' @but : Vérifier l'existence d'un nom défini dans le classeur
+' @param nom (String) : nom à vérifier
+' @return Boolean : True si le nom existe, False sinon
+' @pré : Aucun
 Public Function NameExists(nom As String) As Boolean
     Dim n As Name
     NameExists = False
@@ -158,6 +182,12 @@ Public Function NameExists(nom As String) As Boolean
     Next n
 End Function
 
+
+' Formate la mise en page du layout du rouleau
+' @but : Appliquer tous les styles nécessaires à la zone de production du rouleau
+' @param Aucun
+' @return Aucun
+' @pré : PRODUCTION_WS doit être initialisé et les ranges nommées doivent exister
 Public Sub FormatRollLayout()
     Dim ws As Worksheet
     Set ws = PRODUCTION_WS

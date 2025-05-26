@@ -1,6 +1,7 @@
 Attribute VB_Name = "modUtils"
 Option Explicit
 
+
 Public Sub PromptAndSetTargetLength()
     Dim ws As Worksheet
     Set ws = PRODUCTION_WS
@@ -58,29 +59,36 @@ Public Sub PromptAndSetCutOFNumber()
     Call SetCutOFNumber(ws, val)
 End Sub
 
-' Limite la zone de défilement à la ligne 120
-Public Sub LimitScrollArea()
-    Dim ws As Worksheet
-    Set ws = PRODUCTION_WS
-    If ws Is Nothing Then Exit Sub
-    
-    ' Déprotéger si nécessaire
-    If ws.ProtectContents Then
-        ws.Unprotect
-    End If
-    
-    ' Trouver la dernière colonne utilisée
-    Dim lastCol As String
-    lastCol = Split(ws.Cells(1, ws.Columns.Count).End(xlToLeft).Address, "$")(1)
-    
-    ' Définir la zone de défilement jusqu'à la ligne 120
-    ws.ScrollArea = "AA50:" & lastCol & "120"
-    
-    ' Reproter si elle était protégée au départ
-    If ws.ProtectContents Then
-        ws.Protect
-    End If
-End Sub 
+Public Sub SetTargetLength(ws As Worksheet, targetLength As Double)
+    Application.EnableEvents = False
+    ws.Unprotect
+    ws.Range(TARGET_LENGTH_ADDR).Value = targetLength
+    ws.Range(TARGET_LENGTH_ADDR).Locked = True
+    ws.Protect
+    Debug.Print "[SetTargetLength] Nouvelle longueur cible = " & targetLength
+    Call initializeComponents
+    Application.EnableEvents = True
+End Sub
+
+Public Sub SetOFNumber(ws As Worksheet, ofNumber As Long)
+    Application.EnableEvents = False
+    ws.Unprotect
+    ws.Range(RANGE_OF_NUMBER).Value = ofNumber
+    ws.Range(RANGE_OF_NUMBER).Locked = True
+    ws.Protect
+    Debug.Print "[SetOFNumber] Nouveau numéro OF = " & ofNumber
+    Application.EnableEvents = True
+End Sub
+
+Public Sub SetCutOFNumber(ws As Worksheet, cutOfNumber As Long)
+    Application.EnableEvents = False
+    ws.Unprotect
+    ws.Range(RANGE_CUT_OF_NUMBER).Value = cutOfNumber
+    ws.Range(RANGE_CUT_OF_NUMBER).Locked = True
+    ws.Protect
+    Debug.Print "[SetCutOFNumber] Nouveau numéro OF de coupe = " & cutOfNumber
+    Application.EnableEvents = True
+End Sub
 
 ' Met la date du jour dans la cellule shiftDate
 Public Sub SetTodayDate()
@@ -99,5 +107,3 @@ Public Sub SetTodayDate()
         PRODUCTION_WS.Protect
     End If
 End Sub
-
-
