@@ -2,16 +2,16 @@ Attribute VB_Name = "modRangesInit"
 Option Explicit
 
 ' Constantes pour les noms des ranges
-Const RANGE_SHIFT_ID As String = "shiftID"
-Const RANGE_SHIFT_DATE As String = "shiftDate"
-Const RANGE_SHIFT_OPERATEUR As String = "shiftOperateur"
-Const RANGE_SHIFT_VACCATION As String = "shiftVaccation"
-Const RANGE_SHIFT_DUREE As String = "shiftDuree"
-Const RANGE_SHIFT_MACHINE_PRISE_POSTE As String = "shiftMachinePrisePoste"
-Const RANGE_SHIFT_LG_ENROULEE_PRISE_POSTE As String = "shiftLgEnrouleePrisePoste"
-Const RANGE_SHIFT_MACHINE_FIN_POSTE As String = "shiftMachineFinPoste"
-Const RANGE_SHIFT_LG_ENROULEE_FIN_POSTE As String = "shiftLgEnrouleeFinPoste"
-Const RANGE_SHIFT_COMMENTAIRES As String = "shiftCommentaires"
+' Const RANGE_SHIFT_ID As String = "shiftID"
+' Const RANGE_SHIFT_DATE As String = "shiftDate"
+' Const RANGE_SHIFT_OPERATEUR As String = "shiftOperateur"
+' Const RANGE_SHIFT_VACCATION As String = "shiftVaccation"
+' Const RANGE_SHIFT_DUREE As String = "shiftDuree"
+' Const RANGE_SHIFT_MACHINE_PRISE_POSTE As String = "shiftMachinePrisePoste"
+' Const RANGE_SHIFT_LG_ENROULEE_PRISE_POSTE As String = "shiftLgEnrouleePrisePoste"
+' Const RANGE_SHIFT_MACHINE_FIN_POSTE As String = "shiftMachineFinPoste"
+' Const RANGE_SHIFT_LG_ENROULEE_FIN_POSTE As String = "shiftLgEnrouleeFinPoste"
+' Const RANGE_SHIFT_COMMENTAIRES As String = "shiftCommentaires"
 Const RANGE_OF_NUMBER As String = "OFNumber"
 Const RANGE_CUT_OF_NUMBER As String = "CutOFNumber"
 
@@ -367,47 +367,43 @@ Public Sub initOFRanges()
     Debug.Print "[initOFRanges] -> " & RANGE_CUT_OF_NUMBER & " : BH73"
 End Sub
 
-' Initialise les ranges nommées pour les propriétés principales du rouleau (PRODUCT_ROLL_XXX)
-' @but : Créer ou mettre à jour les ranges nommées pour chaque propriété principale du rouleau
-' @param Aucun
-' @return Aucun
-' @pré : PRODUCTION_WS doit être initialisé
+' Initialise les ranges nommées pour les plages du rouleau
+' @pre : PRODUCTION_WS doit être initialisé
+' @return : aucun
 Public Sub initProductRollRanges()
-    If PRODUCTION_WS Is Nothing Then
-        Debug.Print "[initProductRollRanges] ERREUR : PRODUCTION_WS non initialisé"
-        Exit Sub
-    End If
-
-    ' Suppression des ranges existantes pour éviter les doublons
+    ' Delete existing names if they exist
     On Error Resume Next
-    ThisWorkbook.Names("PRODUCT_ROLL_ID").Delete
-    ThisWorkbook.Names("PRODUCT_ROLL_OF").Delete
-    ThisWorkbook.Names("PRODUCT_ROLL_NUM").Delete
-    ThisWorkbook.Names("PRODUCT_ROLL_SHIFT").Delete
-    ThisWorkbook.Names("PRODUCT_ROLL_TOTAL_MASS").Delete
-    ThisWorkbook.Names("PRODUCT_ROLL_TUBE_MASS").Delete
-    ThisWorkbook.Names("PRODUCT_ROLL_LENGTH").Delete
-    ThisWorkbook.Names("PRODUCT_ROLL_STATUS").Delete
+    ThisWorkbook.Names(RANGE_PRODUCTROLL_ID).Delete
+    ThisWorkbook.Names(RANGE_PRODUCTROLL_OF).Delete
+    ThisWorkbook.Names(RANGE_PRODUCTROLL_NUMBER).Delete
+    ThisWorkbook.Names(RANGE_PRODUCTROLL_FABRICATION_SHIFT).Delete
+    ThisWorkbook.Names(RANGE_PRODUCTROLL_STATUS).Delete
+    ThisWorkbook.Names(RANGE_PRODUCTROLL_PIPE_WEIGHT).Delete
+    ThisWorkbook.Names(RANGE_PRODUCTROLL_TOTAL_WEIGHT).Delete
+    ThisWorkbook.Names(RANGE_PRODUCTROLL_LENGTH).Delete
+    ThisWorkbook.Names(RANGE_PRODUCTROLL_DEFECTS).Delete
     On Error GoTo 0
 
-    ' Création des nouvelles ranges
-    ThisWorkbook.Names.Add Name:="PRODUCT_ROLL_ID", RefersTo:=PRODUCTION_WS.Range("BH79")
-    ThisWorkbook.Names.Add Name:="PRODUCT_ROLL_OF", RefersTo:=PRODUCTION_WS.Range("BH69")
-    ThisWorkbook.Names.Add Name:="PRODUCT_ROLL_NUM", RefersTo:=PRODUCTION_WS.Range("BH78")
-    ThisWorkbook.Names.Add Name:="PRODUCT_ROLL_SHIFT", RefersTo:=PRODUCTION_WS.Range("AC55")
-    ThisWorkbook.Names.Add Name:="PRODUCT_ROLL_TOTAL_MASS", RefersTo:=PRODUCTION_WS.Range("BH81")
-    ThisWorkbook.Names.Add Name:="PRODUCT_ROLL_TUBE_MASS", RefersTo:=PRODUCTION_WS.Range("BH80")
-    ThisWorkbook.Names.Add Name:="PRODUCT_ROLL_LENGTH", RefersTo:=PRODUCTION_WS.Range("BH82")
-    ThisWorkbook.Names.Add Name:="PRODUCT_ROLL_STATUS", RefersTo:=PRODUCTION_WS.Range("BJ78")
+    ' Add new names
+    ThisWorkbook.Names.Add Name:=RANGE_PRODUCTROLL_ID, RefersTo:=PRODUCTION_WS.Range("BH79")
+    ThisWorkbook.Names.Add Name:=RANGE_PRODUCTROLL_OF, RefersTo:=PRODUCTION_WS.Range("BG79")
+    ThisWorkbook.Names.Add Name:=RANGE_PRODUCTROLL_NUMBER, RefersTo:=PRODUCTION_WS.Range("BH78")
+    ThisWorkbook.Names.Add Name:=RANGE_PRODUCTROLL_FABRICATION_SHIFT, RefersTo:=PRODUCTION_WS.Range("AC55")
+    ThisWorkbook.Names.Add Name:=RANGE_PRODUCTROLL_STATUS, RefersTo:=PRODUCTION_WS.Range("BJ78")
+    ThisWorkbook.Names.Add Name:=RANGE_PRODUCTROLL_PIPE_WEIGHT, RefersTo:=PRODUCTION_WS.Range("BH80")
+    ThisWorkbook.Names.Add Name:=RANGE_PRODUCTROLL_TOTAL_WEIGHT, RefersTo:=PRODUCTION_WS.Range("BH81")
+    ThisWorkbook.Names.Add Name:=RANGE_PRODUCTROLL_LENGTH, RefersTo:=PRODUCTION_WS.Range("BH82")
+    ThisWorkbook.Names.Add Name:=RANGE_PRODUCTROLL_DEFECTS, RefersTo:=PRODUCTION_WS.Range("BG85")
 
-    ' Affichage des adresses des ranges
-    Debug.Print "[initProductRollRanges] -> PRODUCT_ROLL_ID : BH79"
-    Debug.Print "[initProductRollRanges] -> PRODUCT_ROLL_OF : BH69"
-    Debug.Print "[initProductRollRanges] -> PRODUCT_ROLL_NUM : BH78"
-    Debug.Print "[initProductRollRanges] -> PRODUCT_ROLL_SHIFT : AC55"
-    Debug.Print "[initProductRollRanges] -> PRODUCT_ROLL_TOTAL_MASS : BH81"
-    Debug.Print "[initProductRollRanges] -> PRODUCT_ROLL_TUBE_MASS : BH80"
-    Debug.Print "[initProductRollRanges] -> PRODUCT_ROLL_LENGTH : BH82"
-    Debug.Print "[initProductRollRanges] -> PRODUCT_ROLL_STATUS : BJ78"
+    ' Debug output
+    Debug.Print "[initProductRollRanges] -> " & RANGE_PRODUCTROLL_ID & " : BH79"
+    Debug.Print "[initProductRollRanges] -> " & RANGE_PRODUCTROLL_OF & " : BG79"
+    Debug.Print "[initProductRollRanges] -> " & RANGE_PRODUCTROLL_NUMBER & " : BH78"
+    Debug.Print "[initProductRollRanges] -> " & RANGE_PRODUCTROLL_FABRICATION_SHIFT & " : AC55"
+    Debug.Print "[initProductRollRanges] -> " & RANGE_PRODUCTROLL_STATUS & " : BJ78"
+    Debug.Print "[initProductRollRanges] -> " & RANGE_PRODUCTROLL_PIPE_WEIGHT & " : BH80"
+    Debug.Print "[initProductRollRanges] -> " & RANGE_PRODUCTROLL_TOTAL_WEIGHT & " : BH81"
+    Debug.Print "[initProductRollRanges] -> " & RANGE_PRODUCTROLL_LENGTH & " : BH82"
+    Debug.Print "[initProductRollRanges] -> " & RANGE_PRODUCTROLL_DEFECTS & " : BG85"
 End Sub
 

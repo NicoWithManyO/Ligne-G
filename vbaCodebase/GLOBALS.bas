@@ -43,3 +43,14 @@ Public Const ROLL_MEASURE_OFFSET As Long = 3
 Public Const RANGE_CTRL_MIN_THICKNESS As String = "ctrlMinThickness"
 Public Const RANGE_CTRL_WARN_THICKNESS As String = "ctrlWarnThickness"
 
+' Product Roll ranges
+Public Const RANGE_PRODUCTROLL_ID As String = "productRollID"
+Public Const RANGE_PRODUCTROLL_OF As String = "productRollOF"
+Public Const RANGE_PRODUCTROLL_NUMBER As String = "productRollNumber"
+Public Const RANGE_PRODUCTROLL_FABRICATION_SHIFT As String = "productRollFabricationShift"
+Public Const RANGE_PRODUCTROLL_STATUS As String = "productRollStatus"
+Public Const RANGE_PRODUCTROLL_PIPE_WEIGHT As String = "productRollPipeWeight"
+Public Const RANGE_PRODUCTROLL_TOTAL_WEIGHT As String = "productRollTotalWeight"
+Public Const RANGE_PRODUCTROLL_LENGTH As String = "productRollLength"
+Public Const RANGE_PRODUCTROLL_DEFECTS As String = "productRollDefects"
+

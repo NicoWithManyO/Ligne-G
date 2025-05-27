@@ -26,6 +26,8 @@ Public MachineFinPoste As Variant
 Public LgEnrouleeFinPoste As Variant
 ' Commentaires : Commentaires additionnels sur le poste
 Public Commentaires As Variant
+' SaveDateTime : Date et heure de la sauvegarde
+Public SaveDateTime As Variant
 
 ' Charge les données du shift depuis la feuille
 ' @but : Initialise les propriétés du shift avec les valeurs de la feuille
@@ -41,7 +43,24 @@ Public Sub LoadFromSheet(ws As Worksheet)
     LgEnrouleePrisePoste = ws.Range(RANGE_SHIFT_LG_ENROULEE_PRISE_POSTE).Value
     MachineFinPoste = ws.Range(RANGE_SHIFT_MACHINE_FIN_POSTE).Value
     LgEnrouleeFinPoste = ws.Range(RANGE_SHIFT_LG_ENROULEE_FIN_POSTE).Value
-    Commentaires = ws.Range(RANGE_SHIFT_COMMENTAIRES).Value
+    
+    ' Concatène les lignes des commentaires
+    Dim commentRange As Range
+    Dim commentCell As Range
+    Dim commentText As String
+    
+    Set commentRange = ws.Range(RANGE_SHIFT_COMMENTAIRES)
+    commentText = ""
+    
+    For Each commentCell In commentRange
+        If Not IsEmpty(commentCell.Value) Then
+            If commentText <> "" Then commentText = commentText & " | "
+            commentText = commentText & commentCell.Value
+        End If
+    Next commentCell
+    
+    Commentaires = commentText
+    SaveDateTime = Now
 End Sub
 
 ' Sauvegarde les données du shift dans la feuille
@@ -58,7 +77,26 @@ Public Sub SaveToSheet(ws As Worksheet)
     ws.Range(RANGE_SHIFT_LG_ENROULEE_PRISE_POSTE).Value = LgEnrouleePrisePoste
     ws.Range(RANGE_SHIFT_MACHINE_FIN_POSTE).Value = MachineFinPoste
     ws.Range(RANGE_SHIFT_LG_ENROULEE_FIN_POSTE).Value = LgEnrouleeFinPoste
-    ws.Range(RANGE_SHIFT_COMMENTAIRES).Value = Commentaires
+    
+    ' Répartit les commentaires sur les lignes
+    Dim commentRange As Range
+    Dim commentLines() As String
+    Dim i As Long
+    
+    Set commentRange = ws.Range(RANGE_SHIFT_COMMENTAIRES)
+    commentLines = Split(Commentaires, " | ")
+    
+    ' Efface d'abord la plage
+    commentRange.ClearContents
+    
+    ' Répartit les lignes
+    For i = 0 To UBound(commentLines)
+        If i <= commentRange.Rows.Count - 1 Then
+            commentRange.Cells(i + 1, 1).Value = commentLines(i)
+        End If
+    Next i
+    
+    ws.Range(RANGE_SHIFT_SAVE_DATE_TIME).Value = SaveDateTime
 End Sub
 
 ' Ajoute les données du shift à la fin de la feuille data_shifts
@@ -162,6 +200,7 @@ Public Sub AppendToDataShifts(ws As Worksheet)
         ws.Cells(nextRow, 9).Value = ""
     End If
     ws.Cells(nextRow, 10).Value = Commentaires
+    ws.Cells(nextRow, 11).Value = Now ' Ajout de la date/heure de sauvegarde
     
     MsgBox "Le poste a été enregistré avec succès.", vbInformation, "Enregistrement réussi"
 End Sub
