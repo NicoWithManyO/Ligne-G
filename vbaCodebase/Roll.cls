@@ -36,20 +36,7 @@ Public Status As Variant
 Public SaveDateTime As Variant
 ' Defects : Défauts détectés
 Public Defects As Variant
-' Controls : Collection des contrôles
-Private pControls As Collection
 
-' Initialise les collections
-Private Sub Class_Initialize()
-    Set pControls = New Collection
-End Sub
-
-' Récupère la collection des épaisseurs
-' @but : Retourne la collection des épaisseurs
-' @return : Collection des épaisseurs
-Public Function GetThicknesses() As Collection
-    Set GetThicknesses = pThicknesses
-End Function
 
 ' Charge les données depuis la feuille
 ' @but : Charge les données du rouleau depuis la feuille de production
@@ -57,7 +44,13 @@ End Function
 ' @return : aucun
 Public Sub LoadFromSheet(ws As Worksheet)
     ' Chargement des propriétés de base
-    ID = ws.Range(RANGE_PRODUCTROLL_ID).Value
+    Dim idValue As Variant
+    idValue = ws.Range(RANGE_PRODUCTROLL_ID).Value
+    If IsEmpty(idValue) Or idValue = "" Then
+        ID = ws.Range(RANGE_CUT_OF_NUMBER).Value & "-" & Format(Now, "ddmmyy-hhmm")
+    Else
+        ID = idValue
+    End If
     OF = ws.Range(RANGE_PRODUCTROLL_OF).Value
     Number = ws.Range(RANGE_PRODUCTROLL_NUMBER).Value
     FabricationShift = ws.Range(RANGE_PRODUCTROLL_FABRICATION_SHIFT).Value

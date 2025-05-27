@@ -96,7 +96,7 @@ Public Sub SaveToSheet(ws As Worksheet)
         End If
     Next i
     
-    ws.Range(RANGE_SHIFT_SAVE_DATE_TIME).Value = SaveDateTime
+    ' ws.Range(RANGE_SHIFT_SAVE_DATE_TIME).Value = SaveDateTime
 End Sub
 
 ' Ajoute les données du shift à la fin de la feuille data_shifts
