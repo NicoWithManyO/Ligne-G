@@ -49,7 +49,49 @@ Public Mesure7 As String
 Public Mesure8 As String
 Public Mesure9 As String
 Public Mesure10 As String
+' Gm2 : Masse linéaire
+Public Gm2 As Variant
 
+' Structure pour définir une colonne
+Private Type ColumnConfig
+    Header As String
+    PropertyName As String
+End Type
+
+' Configuration des colonnes
+Private Function GetColumnConfig() As Variant
+    Dim config(1 To 22) As Object
+    Dim i As Integer
+
+    For i = 1 To 22
+        Set config(i) = CreateObject("Scripting.Dictionary")
+    Next i
+
+    config(1)("Header") = "ID": config(1)("PropertyName") = "ID"
+    config(2)("Header") = "OF": config(2)("PropertyName") = "OF"
+    config(3)("Header") = "Numéro": config(3)("PropertyName") = "Number"
+    config(4)("Header") = "Poste": config(4)("PropertyName") = "FabricationShift"
+    config(5)("Header") = "Statut": config(5)("PropertyName") = "Status"
+    config(6)("Header") = "Poids tube": config(6)("PropertyName") = "PipeWeight"
+    config(7)("Header") = "Poids total": config(7)("PropertyName") = "TotalWeight"
+    config(8)("Header") = "Poids": config(8)("PropertyName") = "Weight"
+    config(9)("Header") = "Longueur": config(9)("PropertyName") = "Length"
+    config(10)("Header") = "g/m²": config(10)("PropertyName") = "Gm2"
+    config(11)("Header") = "Date sauvegarde": config(11)("PropertyName") = "SaveDateTime"
+    config(12)("Header") = "Défauts": config(12)("PropertyName") = "Defects"
+    config(13)("Header") = "Mesure 1": config(13)("PropertyName") = "Mesure1"
+    config(14)("Header") = "Mesure 2": config(14)("PropertyName") = "Mesure2"
+    config(15)("Header") = "Mesure 3": config(15)("PropertyName") = "Mesure3"
+    config(16)("Header") = "Mesure 4": config(16)("PropertyName") = "Mesure4"
+    config(17)("Header") = "Mesure 5": config(17)("PropertyName") = "Mesure5"
+    config(18)("Header") = "Mesure 6": config(18)("PropertyName") = "Mesure6"
+    config(19)("Header") = "Mesure 7": config(19)("PropertyName") = "Mesure7"
+    config(20)("Header") = "Mesure 8": config(20)("PropertyName") = "Mesure8"
+    config(21)("Header") = "Mesure 9": config(21)("PropertyName") = "Mesure9"
+    config(22)("Header") = "Mesure 10": config(22)("PropertyName") = "Mesure10"
+
+    GetColumnConfig = config
+End Function
 
 ' Charge les données depuis la feuille
 ' @but : Charge les données du rouleau depuis la feuille de production
@@ -78,6 +120,13 @@ Public Sub LoadFromSheet(ws As Worksheet)
     ' Calcul du poids (TotalWeight - PipeWeight)
     If Not IsEmpty(TotalWeight) And Not IsEmpty(PipeWeight) Then
         Weight = TotalWeight - PipeWeight
+    End If
+    
+    ' Calcul du g/m²
+    If Not IsEmpty(Weight) And Not IsEmpty(Length) And Length <> 0 Then
+        Gm2 = Weight / Length
+    Else
+        Gm2 = ""
     End If
     
     ' Chargement des mesures tous les 5m (jusqu'à 10 mesures)
@@ -172,24 +221,34 @@ End Function
 Public Sub SaveToSheet(ws As Worksheet)
     Dim nextRow As Long
     nextRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row + 1
-
-    ws.Cells(nextRow, 1).Value = ID
-    ws.Cells(nextRow, 2).Value = OF
-    ws.Cells(nextRow, 3).Value = Number
-    ws.Cells(nextRow, 4).Value = FabricationShift
-    ws.Cells(nextRow, 5).Value = Status
-    ws.Cells(nextRow, 6).Value = PipeWeight
-    ws.Cells(nextRow, 7).Value = TotalWeight
-    ws.Cells(nextRow, 8).Value = Weight
-    ws.Cells(nextRow, 9).Value = Length
-    ws.Cells(nextRow, 10).Value = Defects
-    ws.Cells(nextRow, 11).Value = Now()
     
-    ' Sauvegarde des mesures dans les colonnes 12 à 21
-    Dim m As Integer
-    For m = 1 To 10
-        ws.Cells(nextRow, 11 + m).Value = CallByName(Me, "Mesure" & m, VbGet)
-    Next m
+    ' Récupérer la configuration des colonnes
+    Dim config As Variant
+    config = GetColumnConfig()
+    
+    ' Si la ligne 1 est vide, réécrire les en-têtes
+    Dim i As Integer, enteteVide As Boolean
+    enteteVide = True
+    For i = 1 To UBound(config)
+        If ws.Cells(1, i).Value <> "" Then
+            enteteVide = False
+            Exit For
+        End If
+    Next i
+    If enteteVide Then
+        For i = 1 To UBound(config)
+            ws.Cells(1, i).Value = config(i)("Header")
+        Next i
+    End If
+    
+    ' Sauvegarder les données
+    For i = 1 To UBound(config)
+        If config(i)("PropertyName") = "SaveDateTime" Then
+            ws.Cells(nextRow, i).Value = Now()
+        Else
+            ws.Cells(nextRow, i).Value = CallByName(Me, config(i)("PropertyName"), VbGet)
+        End If
+    Next i
 End Sub
 
 ' Formate les épaisseurs en chaîne de caractères pour la sauvegarde
