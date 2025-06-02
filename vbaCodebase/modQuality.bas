@@ -294,3 +294,117 @@ Public Sub saveDetectedThickness()
     If wasProtected Then ws.Protect
 End Sub
 
+' Charge toutes les épaisseurs dans un tableau
+' @but : Parcourt les colonnes d'épaisseur et stocke toutes les valeurs dans un tableau
+' @param Aucun
+' @return Object : Dictionary contenant les épaisseurs groupées par position
+' @pré : PRODUCTION_WS doit être initialisé et les plages d'épaisseur doivent exister
+Public Function LoadAllThicknesses() As Object
+    Dim ws As Worksheet: Set ws = PRODUCTION_WS
+    If ws Is Nothing Then Set LoadAllThicknesses = CreateObject("Scripting.Dictionary"): Exit Function
+
+    ' Déverrouiller la feuille si besoin
+    Dim wasProtected As Boolean: wasProtected = ws.ProtectContents
+    If wasProtected Then ws.Unprotect
+
+    Dim rngActive As Range: Set rngActive = ws.Range(ThisWorkbook.Names("activeRollArea").RefersTo)
+    Dim thickNames As Variant: thickNames = Array("leftThicknessCels", "rightThicknessCels")
+    Dim positions As Variant: positions = Array("Gauche", "Droite")
+    Dim secNames As Variant: secNames = Array("leftSecThicknessCels", "rightSecThicknessCels")
+    Dim i As Integer, rowOffset As Long
+    Dim cell As Range
+    
+    ' Créer la structure de données principale
+    Dim thicknessData As Object: Set thicknessData = CreateObject("Scripting.Dictionary")
+    thicknessData.Add "Gauche", New Collection
+    thicknessData.Add "Droite", New Collection
+
+    For i = LBound(thickNames) To UBound(thickNames)
+        Debug.Print "[LoadAllThicknesses] Test plage : " & thickNames(i)
+        If NameExists(CStr(thickNames(i))) Then
+            Dim refString As String
+            refString = ThisWorkbook.Names(thickNames(i)).RefersTo
+            refString = Replace(refString, "=", "")
+            Dim addresses As Variant
+            addresses = Split(refString, ",")
+            Dim addr As Variant
+            For Each addr In addresses
+                Set cell = ws.Range(addr)
+                If IsNumeric(cell.Value) And cell.Value <> "" Then
+                    rowOffset = cell.Row - rngActive.Rows(1).Row + 1
+                    Dim thicknessInfo As Object: Set thicknessInfo = CreateObject("Scripting.Dictionary")
+                    thicknessInfo.Add "rowOffset", rowOffset
+                    thicknessInfo.Add "value", CDbl(cell.Value)
+                    thicknessInfo.Add "isConform", True
+                    
+                    ' Chercher la cellule de rattrapage
+                    Dim rattrapageCell As Range
+                    Dim isLastRow As Boolean
+                    isLastRow = cell.Row = rngActive.Rows(rngActive.Rows.Count).Row
+                    If isLastRow Then
+                        Set rattrapageCell = cell.Offset(-1, 0)
+                    Else
+                        Set rattrapageCell = cell.Offset(1, 0)
+                    End If
+                    
+                    ' Vérifier si la cellule de rattrapage existe dans la plage secondaire
+                    If NameExists(CStr(secNames(i))) Then
+                        Dim foundInRattrapage As Boolean: foundInRattrapage = False
+                        Dim refStringR As String
+                        refStringR = ThisWorkbook.Names(secNames(i)).RefersTo
+                        refStringR = Replace(refStringR, "=", "")
+                        Dim addressesR As Variant
+                        addressesR = Split(refStringR, ",")
+                        Dim addrR As Variant
+                        For Each addrR In addressesR
+                            If rattrapageCell.Address = ws.Range(addrR).Address And rattrapageCell.Worksheet.Name = ws.Range(addrR).Worksheet.Name Then
+                                foundInRattrapage = True
+                                If IsNumeric(rattrapageCell.Value) And rattrapageCell.Value <> "" Then
+                                    thicknessInfo.Add "rattrapageValue", CDbl(rattrapageCell.Value)
+                                End If
+                                Exit For
+                            End If
+                        Next addrR
+                    End If
+                    
+                    ' Ajouter à la collection appropriée
+                    thicknessData(positions(i)).Add thicknessInfo
+                End If
+            Next addr
+        Else
+            Debug.Print "[LoadAllThicknesses]   -> Nom NON trouvé : " & thickNames(i)
+        End If
+    Next i
+
+    If wasProtected Then ws.Protect
+    Set LoadAllThicknesses = thicknessData
+End Function
+
+' Procédure de test pour LoadAllThicknesses
+' @but : Affiche toutes les épaisseurs trouvées dans la fenêtre de débogage
+Public Sub TestLoadAllThicknesses()
+    Dim thicknesses As Object
+    Set thicknesses = LoadAllThicknesses()
+    
+    Debug.Print "=== Test de LoadAllThicknesses ==="
+    
+    ' Afficher les épaisseurs par position
+    Dim positions As Variant: positions = Array("Gauche", "Droite")
+    Dim pos As Variant
+    
+    For Each pos In positions
+        Debug.Print "=== Épaisseurs " & pos & " ==="
+        Dim thickness As Object
+        For Each thickness In thicknesses(pos)
+            Debug.Print "  Offset : " & thickness("rowOffset") & "m"
+            Debug.Print "  Valeur : " & Format(thickness("value"), "0.00")
+            If thickness.Exists("rattrapageValue") Then
+                Debug.Print "  Rattrapage : " & Format(thickness("rattrapageValue"), "0.00")
+            End If
+            Debug.Print "  ---"
+        Next thickness
+    Next pos
+    
+    Debug.Print "=== Fin du test ==="
+End Sub
+
