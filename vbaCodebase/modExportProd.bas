@@ -36,6 +36,23 @@ Public Sub saveRollFromProd()
         Exit Sub
     End If
     
+    ' Vérifier si la longueur du rouleau est différente de la longueur cible
+    Dim cible As String
+    If IsNumeric(PRODUCTION_WS.Range(TARGET_LENGTH_ADDR).Value) And PRODUCTION_WS.Range(TARGET_LENGTH_ADDR).Value <> "" Then
+        cible = PRODUCTION_WS.Range(TARGET_LENGTH_ADDR).Value & "m"
+    Else
+        cible = "non renseignée"
+    End If
+    If myRoll.Length <> PRODUCTION_WS.Range(TARGET_LENGTH_ADDR).Value Then
+        Dim lengthDiffMsg As String
+        lengthDiffMsg = "La longueur du rouleau (" & myRoll.Length & "m) est différente de la longueur cible (" & cible & ")." & vbCrLf & _
+                        "Voulez-vous tout de même sauvegarder ce rouleau ?"
+        If MsgBox(lengthDiffMsg, vbYesNo + vbQuestion, "Différence de longueur") <> vbYes Then
+            Debug.Print "[saveRollFromProd] Export annulé par l'utilisateur (différence de longueur)."
+            Exit Sub
+        End If
+    End If
+    
     ' Demander confirmation avant sauvegarde
     Dim confirmMsg As String
     confirmMsg = "Confirmer la sauvegarde du rouleau :" & vbCrLf & _

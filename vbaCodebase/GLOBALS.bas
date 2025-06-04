@@ -54,3 +54,5 @@ Public Const RANGE_PRODUCTROLL_TOTAL_WEIGHT As String = "productRollTotalWeight"
 Public Const RANGE_PRODUCTROLL_LENGTH As String = "productRollLength"
 Public Const RANGE_PRODUCTROLL_DEFECTS As String = "productRollDefects"
 
+Public MODE_PERMISSIF As Boolean
+

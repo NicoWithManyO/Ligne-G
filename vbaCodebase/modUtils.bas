@@ -78,6 +78,18 @@ Public Sub PromptAndSetRollNumber()
     Call SetRollNumber(ws, val)
 End Sub
 
+Public Sub PromptAndSetModePermissif()
+    Dim rep As VbMsgBoxResult
+    rep = MsgBox("Activer le mode permissif ? (OUI = autorise la découpe/non-conforme sur confirmation, NON = refuse strictement)", vbYesNo + vbQuestion, "Mode permissif")
+    If rep = vbYes Then
+        MODE_PERMISSIF = True
+    Else
+        MODE_PERMISSIF = False
+    End If
+    WriteModePermissifToSheet
+    MsgBox "Mode permissif : " & IIf(MODE_PERMISSIF, "OUI", "NON"), vbInformation
+End Sub
+
 Public Sub SetTargetLength(ws As Worksheet, targetLength As Double)
     Application.EnableEvents = False
     ws.Unprotect
@@ -135,4 +147,31 @@ Public Sub SetTodayDate()
     If PRODUCTION_WS.ProtectContents Then
         PRODUCTION_WS.Protect
     End If
+End Sub
+
+Public Sub ReadModePermissifFromSheet()
+    Dim wsParams As Worksheet
+    Set wsParams = ThisWorkbook.Sheets("params")
+    Dim val As String
+    val = UCase(Trim(wsParams.Range("E1").Value))
+    If val = "OUI" Or val = "TRUE" Or val = "1" Then
+        MODE_PERMISSIF = True
+    Else
+        MODE_PERMISSIF = False
+    End If
+End Sub
+
+Public Sub WriteModePermissifToSheet()
+    Dim wsParams As Worksheet
+    Set wsParams = ThisWorkbook.Sheets("params")
+    If MODE_PERMISSIF Then
+        wsParams.Range("E1").Value = "OUI"
+    Else
+        wsParams.Range("E1").Value = "NON"
+    End If
+End Sub
+
+Public Sub SetModePermissif(val As Boolean)
+    MODE_PERMISSIF = val
+    WriteModePermissifToSheet
 End Sub
