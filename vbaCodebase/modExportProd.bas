@@ -16,11 +16,31 @@ Public Sub saveRollFromProd()
     ' Chargement des données depuis PROD
     myRoll.LoadFromSheet PRODUCTION_WS
     
+    ' Vérifier que BH80, BH81 et BH82 sont renseignées
+    If PRODUCTION_WS.Range("BH80").Value = "" Or PRODUCTION_WS.Range("BH81").Value = "" Or PRODUCTION_WS.Range("BH82").Value = "" Then
+        MsgBox "Merci de renseigner les champs : Masse du tube, Masse totale et Longueur avant de sauvegarder.", vbExclamation
+        Exit Sub
+    End If
+    
+    ' Vérifier que les infos de poste (shift) sont renseignées
+    Dim missingShiftFields As String
+    missingShiftFields = ""
+    If PRODUCTION_WS.Range("shiftDate").Value = "" Then missingShiftFields = missingShiftFields & "- Date du poste" & vbCrLf
+    If PRODUCTION_WS.Range("shiftOperateur").Value = "" Then missingShiftFields = missingShiftFields & "- Opérateur" & vbCrLf
+    If PRODUCTION_WS.Range("shiftVaccation").Value = "" Then missingShiftFields = missingShiftFields & "- Vacation" & vbCrLf
+    If PRODUCTION_WS.Range("shiftID").Value = "" Then missingShiftFields = missingShiftFields & "- ID du poste" & vbCrLf
+    If PRODUCTION_WS.Range("shiftMachinePrisePoste").Value = "" Then missingShiftFields = missingShiftFields & "- Machine prise de poste" & vbCrLf
+    If PRODUCTION_WS.Range("shiftDuree").Value = "" Then missingShiftFields = missingShiftFields & "- Durée du poste" & vbCrLf
+    If missingShiftFields <> "" Then
+        MsgBox "Merci de renseigner les informations de poste suivantes avant de sauvegarder :" & vbCrLf & missingShiftFields, vbExclamation
+        Exit Sub
+    End If
+    
     ' Demander confirmation avant sauvegarde
     Dim confirmMsg As String
     confirmMsg = "Confirmer la sauvegarde du rouleau :" & vbCrLf & _
                  "ID : " & myRoll.ID & vbCrLf & _
-                 "Longueur : " & myRoll.Length & "m."& vbCrLf & _
+                 "Longueur : " & myRoll.Length & "m." & vbCrLf & _
                  "Statut : " & myRoll.Status
     If MsgBox(confirmMsg, vbYesNo + vbQuestion, "Confirmation export rouleau") <> vbYes Then
         Debug.Print "[saveRollFromProd] Export annulé par l'utilisateur."
@@ -62,18 +82,16 @@ Public Sub saveRollFromProd()
     Dim wasProtected As Boolean: wasProtected = PRODUCTION_WS.ProtectContents
     If wasProtected Then PRODUCTION_WS.Unprotect
 
-    ' Copier BK82 vers BH80 si BH80 est vide
-    If IsEmpty(PRODUCTION_WS.Range("BH80").Value) Then
-        Dim bk82Value As Variant
-        bk82Value = PRODUCTION_WS.Range("BK82").Value
-        If Not IsEmpty(bk82Value) Then
-            PRODUCTION_WS.Range("BH80").Value = bk82Value
-        End If
+    ' Copier BK82 vers BH80 si BK82 a une valeur, sinon vider BH80
+    If Not IsEmpty(PRODUCTION_WS.Range("BK82").Value) And PRODUCTION_WS.Range("BK82").Value <> "" Then
+        PRODUCTION_WS.Range("BH80").Value = PRODUCTION_WS.Range("BK82").Value
+    Else
+        PRODUCTION_WS.Range("BH80").Value = ""
     End If
-
-    ' Vider BH81 et BK82
-    PRODUCTION_WS.Range("BH81").Value = ""
     PRODUCTION_WS.Range("BK82").Value = ""
+
+    ' Vider BH81
+    PRODUCTION_WS.Range("BH81").Value = ""
 
     If wasProtected Then PRODUCTION_WS.Protect
 
