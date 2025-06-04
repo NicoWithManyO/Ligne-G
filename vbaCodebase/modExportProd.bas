@@ -18,11 +18,10 @@ Public Sub saveRollFromProd()
     
     ' Demander confirmation avant sauvegarde
     Dim confirmMsg As String
-    confirmMsg = "Confirmer l'export du rouleau :" & vbCrLf & _
+    confirmMsg = "Confirmer la sauvegarde du rouleau :" & vbCrLf & _
                  "ID : " & myRoll.ID & vbCrLf & _
-                 "Longueur : " & myRoll.Length & vbCrLf & _
-                 "Status : " & myRoll.Status & vbCrLf & vbCrLf & _
-                 "Voulez-vous continuer ?"
+                 "Longueur : " & myRoll.Length & "m."& vbCrLf & _
+                 "Statut : " & myRoll.Status
     If MsgBox(confirmMsg, vbYesNo + vbQuestion, "Confirmation export rouleau") <> vbYes Then
         Debug.Print "[saveRollFromProd] Export annulé par l'utilisateur."
         Exit Sub
