@@ -16,6 +16,18 @@ Public Sub saveRollFromProd()
     ' Chargement des données depuis PROD
     myRoll.LoadFromSheet PRODUCTION_WS
     
+    ' Demander confirmation avant sauvegarde
+    Dim confirmMsg As String
+    confirmMsg = "Confirmer l'export du rouleau :" & vbCrLf & _
+                 "ID : " & myRoll.ID & vbCrLf & _
+                 "Longueur : " & myRoll.Length & vbCrLf & _
+                 "Status : " & myRoll.Status & vbCrLf & vbCrLf & _
+                 "Voulez-vous continuer ?"
+    If MsgBox(confirmMsg, vbYesNo + vbQuestion, "Confirmation export rouleau") <> vbYes Then
+        Debug.Print "[saveRollFromProd] Export annulé par l'utilisateur."
+        Exit Sub
+    End If
+    
     ' Vérifier si l'ID existe déjà
     Dim wsDataRolls As Worksheet
     Set wsDataRolls = ThisWorkbook.Sheets("dataRolls")
