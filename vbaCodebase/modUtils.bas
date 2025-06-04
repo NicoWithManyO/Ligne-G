@@ -59,6 +59,25 @@ Public Sub PromptAndSetCutOFNumber()
     Call SetCutOFNumber(ws, val)
 End Sub
 
+Public Sub PromptAndSetRollNumber()
+    Dim ws As Worksheet
+    Set ws = PRODUCTION_WS
+    Dim userInput As Variant
+    userInput = InputBox("Modifier le numéro de rouleau ?", "Set Roll Number")
+    If userInput = "" Then Exit Sub
+    If Not IsNumeric(userInput) Then
+        MsgBox "Une valeur numérique est attendue", vbExclamation
+        Exit Sub
+    End If
+    Dim val As Long
+    val = CLng(userInput)
+    If val < 1 Then
+        MsgBox "La valeur doit être supérieure à 0", vbExclamation
+        Exit Sub
+    End If
+    Call SetRollNumber(ws, val)
+End Sub
+
 Public Sub SetTargetLength(ws As Worksheet, targetLength As Double)
     Application.EnableEvents = False
     ws.Unprotect
@@ -87,6 +106,16 @@ Public Sub SetCutOFNumber(ws As Worksheet, cutOfNumber As Long)
     ws.Range(RANGE_CUT_OF_NUMBER).Locked = True
     ws.Protect
     Debug.Print "[SetCutOFNumber] Nouveau numéro OF de coupe = " & cutOfNumber
+    Application.EnableEvents = True
+End Sub
+
+Public Sub SetRollNumber(ws As Worksheet, rollNumber As Long)
+    Application.EnableEvents = False
+    ws.Unprotect
+    ws.Range("BH78").Value = rollNumber
+    ws.Range("BH78").Locked = True
+    ws.Protect
+    Debug.Print "[SetRollNumber] Nouveau numéro de roll = " & rollNumber
     Application.EnableEvents = True
 End Sub
 

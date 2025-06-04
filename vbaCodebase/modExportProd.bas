@@ -20,6 +20,18 @@ Public Sub saveRollFromProd()
     myRoll.SaveToSheet ThisWorkbook.Sheets("dataRolls")
     
     Debug.Print "[saveRollFromProd] Rouleau sauvegardé : " & myRoll.ID
+    Debug.Print "[saveRollFromProd] Status du rouleau : " & myRoll.Status
+
+    ' Si le status est conforme, on incrémente le numéro de roll
+    If UCase(myRoll.Status) = "CONFORME" Then
+        Dim currentRollNumber As Long
+        currentRollNumber = PRODUCTION_WS.Range(RANGE_PRODUCTROLL_NUMBER).Value
+        Debug.Print "[saveRollFromProd] Numéro de roll actuel : " & currentRollNumber
+        Call SetRollNumber(PRODUCTION_WS, currentRollNumber + 1)
+        Debug.Print "[saveRollFromProd] Numéro de roll incrémenté : " & (currentRollNumber + 1)
+    Else
+        Debug.Print "[saveRollFromProd] Status non conforme : " & myRoll.Status & " - Pas d'incrémentation"
+    End If
 End Sub
 
 ' Sauvegarde les données du rouleau dans un fichier texte
