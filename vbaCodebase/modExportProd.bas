@@ -16,8 +16,22 @@ Public Sub saveRollFromProd()
     ' Chargement des données depuis PROD
     myRoll.LoadFromSheet PRODUCTION_WS
     
+    ' Vérifier si l'ID existe déjà
+    Dim wsDataRolls As Worksheet
+    Set wsDataRolls = ThisWorkbook.Sheets("dataRolls")
+    Dim lastRow As Long
+    lastRow = wsDataRolls.Cells(wsDataRolls.Rows.Count, 1).End(xlUp).Row
+    
+    Dim i As Long
+    For i = 2 To lastRow ' Commencer à 2 pour ignorer l'en-tête
+        If wsDataRolls.Cells(i, 1).Value = myRoll.ID Then
+            MsgBox "Un rouleau avec l'ID " & myRoll.ID & " existe déjà.", vbExclamation
+            Exit Sub
+        End If
+    Next i
+    
     ' Sauvegarde dans dataRolls
-    myRoll.SaveToSheet ThisWorkbook.Sheets("dataRolls")
+    myRoll.SaveToSheet wsDataRolls
     
     Debug.Print "[saveRollFromProd] Rouleau sauvegardé : " & myRoll.ID
     Debug.Print "[saveRollFromProd] Status du rouleau : " & myRoll.Status
@@ -32,6 +46,31 @@ Public Sub saveRollFromProd()
     Else
         Debug.Print "[saveRollFromProd] Status non conforme : " & myRoll.Status & " - Pas d'incrémentation"
     End If
+
+    ' Gestion des poids
+    Dim wasProtected As Boolean: wasProtected = PRODUCTION_WS.ProtectContents
+    If wasProtected Then PRODUCTION_WS.Unprotect
+
+    ' Copier BK82 vers BH80 si BH80 est vide
+    If IsEmpty(PRODUCTION_WS.Range("BH80").Value) Then
+        Dim bk82Value As Variant
+        bk82Value = PRODUCTION_WS.Range("BK82").Value
+        If Not IsEmpty(bk82Value) Then
+            PRODUCTION_WS.Range("BH80").Value = bk82Value
+        End If
+    End If
+
+    ' Vider BH81 et BK82
+    PRODUCTION_WS.Range("BH81").Value = ""
+    PRODUCTION_WS.Range("BK82").Value = ""
+
+    If wasProtected Then PRODUCTION_WS.Protect
+
+    ' Vider la zone active et réécrire les mètres
+    Call ClearAllActiveRollArea
+
+    ' Message de confirmation
+    MsgBox "Le rouleau " & myRoll.ID & " a bien été sauvegardé : " & myRoll.Status, vbInformation
 End Sub
 
 ' Sauvegarde les données du rouleau dans un fichier texte

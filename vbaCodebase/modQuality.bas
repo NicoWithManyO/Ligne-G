@@ -330,46 +330,42 @@ Public Function LoadAllThicknesses() As Object
             Dim addr As Variant
             For Each addr In addresses
                 Set cell = ws.Range(addr)
-                If IsNumeric(cell.Value) And cell.Value <> "" Then
-                    rowOffset = cell.Row - rngActive.Rows(1).Row + 1
-                    Dim thicknessInfo As Object: Set thicknessInfo = CreateObject("Scripting.Dictionary")
-                    thicknessInfo.Add "rowOffset", rowOffset
-                    thicknessInfo.Add "value", CDbl(cell.Value)
-                    thicknessInfo.Add "isConform", True
-                    
-                    ' Chercher la cellule de rattrapage
-                    Dim rattrapageCell As Range
-                    Dim isLastRow As Boolean
-                    isLastRow = cell.Row = rngActive.Rows(rngActive.Rows.Count).Row
-                    If isLastRow Then
-                        Set rattrapageCell = cell.Offset(-1, 0)
-                    Else
-                        Set rattrapageCell = cell.Offset(1, 0)
-                    End If
-                    
-                    ' Vérifier si la cellule de rattrapage existe dans la plage secondaire
-                    If NameExists(CStr(secNames(i))) Then
-                        Dim foundInRattrapage As Boolean: foundInRattrapage = False
-                        Dim refStringR As String
-                        refStringR = ThisWorkbook.Names(secNames(i)).RefersTo
-                        refStringR = Replace(refStringR, "=", "")
-                        Dim addressesR As Variant
-                        addressesR = Split(refStringR, ",")
-                        Dim addrR As Variant
-                        For Each addrR In addressesR
-                            If rattrapageCell.Address = ws.Range(addrR).Address And rattrapageCell.Worksheet.Name = ws.Range(addrR).Worksheet.Name Then
-                                foundInRattrapage = True
-                                If IsNumeric(rattrapageCell.Value) And rattrapageCell.Value <> "" Then
-                                    thicknessInfo.Add "rattrapageValue", CDbl(rattrapageCell.Value)
-                                End If
-                                Exit For
-                            End If
-                        Next addrR
-                    End If
-                    
-                    ' Ajouter à la collection appropriée
-                    thicknessData(positions(i)).Add thicknessInfo
+                rowOffset = cell.Row - rngActive.Rows(1).Row + 1
+                Dim thicknessInfo As Object: Set thicknessInfo = CreateObject("Scripting.Dictionary")
+                thicknessInfo.Add "rowOffset", rowOffset
+                thicknessInfo.Add "value", cell.Value ' Peut être vide ou non numérique
+                thicknessInfo.Add "isConform", True
+                
+                ' Chercher la cellule de rattrapage
+                Dim rattrapageCell As Range
+                Dim isLastRow As Boolean
+                isLastRow = cell.Row = rngActive.Rows(rngActive.Rows.Count).Row
+                If isLastRow Then
+                    Set rattrapageCell = cell.Offset(-1, 0)
+                Else
+                    Set rattrapageCell = cell.Offset(1, 0)
                 End If
+                
+                ' Vérifier si la cellule de rattrapage existe dans la plage secondaire
+                If NameExists(CStr(secNames(i))) Then
+                    Dim foundInRattrapage As Boolean: foundInRattrapage = False
+                    Dim refStringR As String
+                    refStringR = ThisWorkbook.Names(secNames(i)).RefersTo
+                    refStringR = Replace(refStringR, "=", "")
+                    Dim addressesR As Variant
+                    addressesR = Split(refStringR, ",")
+                    Dim addrR As Variant
+                    For Each addrR In addressesR
+                        If rattrapageCell.Address = ws.Range(addrR).Address And rattrapageCell.Worksheet.Name = ws.Range(addrR).Worksheet.Name Then
+                            foundInRattrapage = True
+                            thicknessInfo.Add "rattrapageValue", rattrapageCell.Value ' Peut être vide ou non numérique
+                            Exit For
+                        End If
+                    Next addrR
+                End If
+                
+                ' Ajouter à la collection appropriée
+                thicknessData(positions(i)).Add thicknessInfo
             Next addr
         Else
             Debug.Print "[LoadAllThicknesses]   -> Nom NON trouvé : " & thickNames(i)
@@ -381,7 +377,7 @@ Public Function LoadAllThicknesses() As Object
 End Function
 
 ' Procédure de test pour LoadAllThicknesses
-' @but : Affiche toutes les épaisseurs trouvées dans la fenêtre de débogage
+' @but : Afficher toutes les épaisseurs trouvées dans la fenêtre de débogage
 Public Sub TestLoadAllThicknesses()
     Dim thicknesses As Object
     Set thicknesses = LoadAllThicknesses()
@@ -407,4 +403,77 @@ Public Sub TestLoadAllThicknesses()
     
     Debug.Print "=== Fin du test ==="
 End Sub
+
+' Vérifie que toutes les épaisseurs sont présentes en fonction de la longueur
+' @but : Vérifie que toutes les mesures d'épaisseur requises sont présentes pour chaque ligne
+' @param Optional ByRef missingMeasurements As String : Liste des mesures manquantes
+' @return Boolean : True si toutes les mesures sont présentes, False sinon
+' @pré : PRODUCTION_WS doit être initialisé
+Public Function AreAllThicknessesPresent(Optional ByRef missingMeasurements As String = "") As Boolean
+    If PRODUCTION_WS Is Nothing Then
+        missingMeasurements = "Feuille PROD non initialisée"
+        AreAllThicknessesPresent = False
+        Exit Function
+    End If
+
+    Dim ws As Worksheet: Set ws = PRODUCTION_WS
+    Dim targetLength As Double: targetLength = ws.Range(TARGET_LENGTH_ADDR).Value
+    
+    ' Calculer les positions des mesures requises
+    Dim requiredMeasurements As Collection: Set requiredMeasurements = New Collection
+    Dim currentPos As Double: currentPos = ROLL_MEASURE_OFFSET
+    Do While currentPos <= targetLength
+        requiredMeasurements.Add currentPos
+        currentPos = currentPos + ROLL_MEASURE_INTERVAL
+    Loop
+
+    ' Vérifier les mesures présentes
+    Dim thicknesses As Object: Set thicknesses = LoadAllThicknesses()
+    Dim missingList As String: missingList = ""
+    Dim pos As Variant
+    Dim positions As Variant: positions = Array("Gauche", "Droite")
+    Dim posName As Variant
+    Dim hasAllMeasurements As Boolean: hasAllMeasurements = True
+
+    ' Pour chaque position (Gauche et Droite)
+    For Each posName In positions
+        Dim missingForPosition As String: missingForPosition = ""
+        
+        ' Pour chaque position requise
+        For Each pos In requiredMeasurements
+            Dim hasMeasurement As Boolean: hasMeasurement = False
+            
+            ' Vérifier dans les mesures principales et de rattrapage
+            Dim thickness As Object
+            For Each thickness In thicknesses(posName)
+                If thickness("rowOffset") = pos Then
+                    If (IsNumeric(thickness("value")) And thickness("value") <> "") Or _
+                       (thickness.Exists("rattrapageValue") And IsNumeric(thickness("rattrapageValue")) And thickness("rattrapageValue") <> "") Then
+                        hasMeasurement = True
+                        Exit For
+                    End If
+                End If
+            Next thickness
+
+            ' Si la mesure est manquante, l'ajouter à la liste pour cette position
+            If Not hasMeasurement Then
+                If missingForPosition <> "" Then missingForPosition = missingForPosition & ", "
+                missingForPosition = missingForPosition & pos & "m"
+            End If
+        Next pos
+
+        ' Si des mesures sont manquantes pour cette position
+        If missingForPosition <> "" Then
+            hasAllMeasurements = False
+            If missingList <> "" Then missingList = missingList & " | "
+            missingList = missingList & posName & " : " & missingForPosition
+        End If
+    Next posName
+
+    ' Mettre à jour le paramètre de sortie
+    missingMeasurements = missingList
+    
+    ' Retourner True si toutes les mesures sont présentes pour toutes les positions
+    AreAllThicknessesPresent = hasAllMeasurements
+End Function
 
