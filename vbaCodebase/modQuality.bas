@@ -406,27 +406,28 @@ End Sub
 
 ' Vérifie que toutes les épaisseurs sont présentes en fonction de la longueur
 ' @but : Vérifie que toutes les mesures d'épaisseur requises sont présentes pour chaque ligne
-' @param Optional ByRef missingMeasurements As String : Liste des mesures manquantes
+' @param ByRef missingMeasurements As String : Liste des mesures manquantes
 ' @return Boolean : True si toutes les mesures sont présentes, False sinon
 ' @pré : PRODUCTION_WS doit être initialisé
-Public Function AreAllThicknessesPresent(Optional ByRef missingMeasurements As String = "") As Boolean
-    Debug.Print "[AreAllThicknessesPresent] Début de la vérification des épaisseurs"
-    
-    If PRODUCTION_WS Is Nothing Then
-        Debug.Print "[AreAllThicknessesPresent] ERREUR : PRODUCTION_WS non initialisé"
-        missingMeasurements = "Feuille PROD non initialisée"
-        AreAllThicknessesPresent = False
-        Exit Function
-    End If
-
+Public Function AreAllThicknessesPresent(ByRef missingMeasurements As String) As Boolean
     Dim ws As Worksheet: Set ws = PRODUCTION_WS
-    Dim targetLength As Double: targetLength = ws.Range(TARGET_LENGTH_ADDR).Value
-    Debug.Print "[AreAllThicknessesPresent] Longueur cible = " & targetLength & "m"
     
-    ' Vérifier que la longueur cible est valide
-    If Not IsNumeric(targetLength) Or targetLength <= 0 Then
-        Debug.Print "[AreAllThicknessesPresent] ERREUR : Longueur cible invalide = " & targetLength
-        missingMeasurements = "Longueur cible invalide"
+    ' Essayer d'abord d'utiliser la longueur réelle (BH82)
+    Dim realLength As Double
+    realLength = ws.Range("BH82").Value
+    
+    ' Si pas de longueur réelle, utiliser la longueur cible
+    If Not IsNumeric(realLength) Or realLength <= 0 Then
+        realLength = ws.Range(TARGET_LENGTH_ADDR).Value
+        Debug.Print "[AreAllThicknessesPresent] Utilisation de la longueur cible = " & realLength & "m"
+    Else
+        Debug.Print "[AreAllThicknessesPresent] Utilisation de la longueur réelle = " & realLength & "m"
+    End If
+    
+    ' Vérifier que la longueur est valide
+    If Not IsNumeric(realLength) Or realLength <= 0 Then
+        Debug.Print "[AreAllThicknessesPresent] ERREUR : Longueur invalide = " & realLength
+        missingMeasurements = "Longueur invalide"
         AreAllThicknessesPresent = False
         Exit Function
     End If
@@ -436,15 +437,15 @@ Public Function AreAllThicknessesPresent(Optional ByRef missingMeasurements As S
     Dim currentPos As Double: currentPos = ROLL_MEASURE_OFFSET
     
     ' Cas spéciaux pour les rouleaux courts
-    If targetLength = 1 Then
+    If realLength = 1 Then
         Debug.Print "[AreAllThicknessesPresent] Rouleau de 1m : mesure à 1m"
         requiredMeasurements.Add 1
-    ElseIf targetLength = 2 Then
+    ElseIf realLength = 2 Then
         Debug.Print "[AreAllThicknessesPresent] Rouleau de 2m : mesure à 1m"
         requiredMeasurements.Add 1
     Else
-        Debug.Print "[AreAllThicknessesPresent] Rouleau de " & targetLength & "m : mesures tous les " & ROLL_MEASURE_INTERVAL & "m à partir de " & ROLL_MEASURE_OFFSET & "m"
-        Do While currentPos <= targetLength
+        Debug.Print "[AreAllThicknessesPresent] Rouleau de " & realLength & "m : mesures tous les " & ROLL_MEASURE_INTERVAL & "m à partir de " & ROLL_MEASURE_OFFSET & "m"
+        Do While currentPos <= realLength
             requiredMeasurements.Add currentPos
             Debug.Print "[AreAllThicknessesPresent]   -> Ajout position " & currentPos & "m"
             currentPos = currentPos + ROLL_MEASURE_INTERVAL
