@@ -24,8 +24,13 @@ Public Sub saveRollFromProd()
     
     ' Vérifier que toutes les épaisseurs sont présentes
     Dim missingMeasurements As String
+    Dim rollLength As Double
+    rollLength = PRODUCTION_WS.Range("BH82").Value
+    If Not IsNumeric(rollLength) Or rollLength <= 0 Then
+        rollLength = PRODUCTION_WS.Range(TARGET_LENGTH_ADDR).Value
+    End If
     If Not AreAllThicknessesPresent(missingMeasurements) Then
-        MsgBox "Merci de renseigner toutes les épaisseurs requises avant de sauvegarder :" & vbCrLf & missingMeasurements, vbExclamation
+        MsgBox "Merci de renseigner toutes les épaisseurs requises pour un rouleau de " & rollLength & "m avant de sauvegarder :" & vbCrLf & missingMeasurements, vbExclamation
         Exit Sub
     End If
     
