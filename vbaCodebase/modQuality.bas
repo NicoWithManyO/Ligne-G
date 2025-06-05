@@ -414,7 +414,7 @@ Public Function AreAllThicknessesPresent(ByRef missingMeasurements As String) As
     
     ' Essayer d'abord d'utiliser la longueur réelle (BH82)
     Dim realLength As Double
-    realLength = ws.Range("BH82").Value
+    realLength = ws.Range(RANGE_REAL_LENGTH).Value
     
     ' Si pas de longueur réelle, utiliser la longueur cible
     If Not IsNumeric(realLength) Or realLength <= 0 Then

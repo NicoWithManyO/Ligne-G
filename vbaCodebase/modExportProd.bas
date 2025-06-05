@@ -17,7 +17,7 @@ Public Sub saveRollFromProd()
     myRoll.LoadFromSheet PRODUCTION_WS
     
     ' Vérifier que BH80, BH81 et BH82 sont renseignées
-    If PRODUCTION_WS.Range("BH80").Value = "" Or PRODUCTION_WS.Range("BH81").Value = "" Or PRODUCTION_WS.Range("BH82").Value = "" Then
+    If PRODUCTION_WS.Range("BH80").Value = "" Or PRODUCTION_WS.Range("BH81").Value = "" Or PRODUCTION_WS.Range(RANGE_REAL_LENGTH).Value = "" Then
         MsgBox "Merci de renseigner les champs : Masse du tube, Masse totale et Longueur avant de sauvegarder.", vbExclamation
         Exit Sub
     End If
@@ -25,7 +25,7 @@ Public Sub saveRollFromProd()
     ' Vérifier que toutes les épaisseurs sont présentes
     Dim missingMeasurements As String
     Dim rollLength As Double
-    rollLength = PRODUCTION_WS.Range("BH82").Value
+    rollLength = PRODUCTION_WS.Range(RANGE_REAL_LENGTH).Value
     If Not IsNumeric(rollLength) Or rollLength <= 0 Then
         rollLength = PRODUCTION_WS.Range(TARGET_LENGTH_ADDR).Value
     End If

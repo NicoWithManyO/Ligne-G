@@ -56,3 +56,5 @@ Public Const RANGE_PRODUCTROLL_DEFECTS As String = "productRollDefects"
 
 Public MODE_PERMISSIF As Boolean
 
+Public Const RANGE_REAL_LENGTH As String = "BH82"
+
