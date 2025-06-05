@@ -56,12 +56,19 @@ Public Sub saveRollFromProd()
         cible = "non renseignée"
     End If
     If myRoll.Length <> PRODUCTION_WS.Range(TARGET_LENGTH_ADDR).Value Then
-        Dim lengthDiffMsg As String
-        lengthDiffMsg = "La longueur du rouleau (" & myRoll.Length & "m) est différente de la longueur cible (" & cible & ")." & vbCrLf & _
-                        "Voulez-vous tout de même sauvegarder ce rouleau ?"
-        If MsgBox(lengthDiffMsg, vbYesNo + vbQuestion, "Différence de longueur") <> vbYes Then
-            Debug.Print "[saveRollFromProd] Export annulé par l'utilisateur (différence de longueur)."
+        If Not MODE_PERMISSIF Then
+            MsgBox "La longueur du rouleau (" & myRoll.Length & "m) est différente de la longueur cible (" & cible & ")." & vbCrLf & _
+                   "La sauvegarde est refusée car le mode permissif n'est pas activé.", vbExclamation, "Différence de longueur"
+            Debug.Print "[saveRollFromProd] Export refusé : longueur différente et mode permissif désactivé."
             Exit Sub
+        Else
+            Dim lengthDiffMsg As String
+            lengthDiffMsg = "La longueur du rouleau (" & myRoll.Length & "m) est différente de la longueur cible (" & cible & ")." & vbCrLf & _
+                            "Voulez-vous tout de même sauvegarder ce rouleau ?"
+            If MsgBox(lengthDiffMsg, vbYesNo + vbQuestion, "Différence de longueur") <> vbYes Then
+                Debug.Print "[saveRollFromProd] Export annulé par l'utilisateur (différence de longueur)."
+                Exit Sub
+            End If
         End If
     End If
     
