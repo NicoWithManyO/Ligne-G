@@ -21,22 +21,22 @@ Const ROLL_END_ROW As Long = 167
 Const ROLL_START_COL As String = "AJ"
 Const ROLL_END_COL As String = "BD"
 Const ROLL_MEASURE_INTERVAL As Long = 5  ' Mesures tous les 5m
-Const ROLL_MEASURE_OFFSET As Long = 3    ' Première mesure à 3m
+Const ROLL_MEASURE_OFFSET As Long = 3    ' PremiÃ¨re mesure Ã  3m
 
 ' Constantes pour les ranges des valeurs limites
 Const RANGE_CTRL_MIN_THICKNESS As String = "ctrlMinThickness"  ' Seuil rouge (BK59)
 Const RANGE_CTRL_WARN_THICKNESS As String = "ctrlWarnThickness"  ' Seuil orange (BJ59)
 
-' Initialise les ranges nommées pour le suivi des shifts
-' @pre : PRODUCTION_WS doit être initialisé
+' Initialise les ranges nommÃ©es pour le suivi des shifts
+' @pre : PRODUCTION_WS doit Ãªtre initialisÃ©
 ' @return : aucun
 Public Sub initShiftRanges()
     If PRODUCTION_WS Is Nothing Then
-        Debug.Print "[initShiftRanges] ERREUR : PRODUCTION_WS non initialisé"
+        Debug.Print "[initShiftRanges] ERREUR : PRODUCTION_WS non initialisÃ©"
         Exit Sub
     End If
     
-    ' Suppression des ranges existantes pour éviter les doublons
+    ' Suppression des ranges existantes pour Ã©viter les doublons
     On Error Resume Next
     ThisWorkbook.Names(RANGE_SHIFT_ID).Delete
     ThisWorkbook.Names(RANGE_SHIFT_DATE).Delete
@@ -50,7 +50,7 @@ Public Sub initShiftRanges()
     ThisWorkbook.Names(RANGE_SHIFT_COMMENTAIRES).Delete
     On Error GoTo 0
     
-    ' Création des nouvelles ranges
+    ' CrÃ©ation des nouvelles ranges
     ThisWorkbook.Names.Add Name:=RANGE_SHIFT_ID, RefersTo:=PRODUCTION_WS.Range("AC55")
     ThisWorkbook.Names.Add Name:=RANGE_SHIFT_DATE, RefersTo:=PRODUCTION_WS.Range("AD54")
     ThisWorkbook.Names.Add Name:=RANGE_SHIFT_OPERATEUR, RefersTo:=PRODUCTION_WS.Range("AD56")
@@ -76,12 +76,12 @@ Public Sub initShiftRanges()
     Debug.Print "[initShiftRanges] -> " & RANGE_SHIFT_COMMENTAIRES & " : AC67:AG71"
 End Sub
 
-' Définit les plages nommées pour le rouleau
-' @pre : PRODUCTION_WS doit être initialisé
+' DÃ©finit les plages nommÃ©es pour le rouleau
+' @pre : PRODUCTION_WS doit Ãªtre initialisÃ©
 ' @return : aucun
 Public Sub defineRollNamedRanges()
     If PRODUCTION_WS Is Nothing Then
-        Debug.Print "[defineRollNamedRanges] ERREUR : PRODUCTION_WS non initialisé"
+        Debug.Print "[defineRollNamedRanges] ERREUR : PRODUCTION_WS non initialisÃ©"
         Exit Sub
     End If
     
@@ -89,7 +89,7 @@ Public Sub defineRollNamedRanges()
     Set TARGET_LENGTH_CELL = PRODUCTION_WS.Range(TARGET_LENGTH_ADDR)
     Debug.Print "[defineRollNamedRanges] Longueur cible : " & TARGET_LENGTH_CELL.Value
     If TARGET_LENGTH_CELL Is Nothing Then
-        Debug.Print "[defineRollNamedRanges] ERREUR : Cellule de longueur cible non trouvée : " & TARGET_LENGTH_ADDR
+        Debug.Print "[defineRollNamedRanges] ERREUR : Cellule de longueur cible non trouvÃ©e : " & TARGET_LENGTH_ADDR
         Exit Sub
     End If
     
@@ -97,11 +97,11 @@ Public Sub defineRollNamedRanges()
     Dim colConfig As Object: Set colConfig = CreateObject("Scripting.Dictionary")
     With colConfig
         .Add "lengthCols", Array(2, 10, 12, 20)      ' Colonnes de longueur
-        .Add "leftThicknessCols", Array(4, 6, 8)      ' Colonnes d'épaisseur gauche
-        .Add "rightThicknessCols", Array(14, 16, 18)  ' Colonnes d'épaisseur droite
-        .Add "leftDefaultsCol", Array(1)              ' Colonne défaut gauche
-        .Add "centerDefaultsCol", Array(11)           ' Colonne défaut centre
-        .Add "rightDefaultsCol", Array(21)            ' Colonne défaut droite
+        .Add "leftThicknessCols", Array(4, 6, 8)      ' Colonnes d'Ã©paisseur gauche
+        .Add "rightThicknessCols", Array(14, 16, 18)  ' Colonnes d'Ã©paisseur droite
+        .Add "leftDefaultsCol", Array(1)              ' Colonne dÃ©faut gauche
+        .Add "centerDefaultsCol", Array(11)           ' Colonne dÃ©faut centre
+        .Add "rightDefaultsCol", Array(21)            ' Colonne dÃ©faut droite
     End With
     
     ' === Suppression des anciens noms ===
@@ -119,31 +119,31 @@ Public Sub defineRollNamedRanges()
     Next name
     On Error GoTo 0
     
-    ' === Définition des zones principales ===
+    ' === DÃ©finition des zones principales ===
     Dim maxRange As Range
     Set maxRange = PRODUCTION_WS.Range(ROLL_START_COL & ROLL_START_ROW & ":" & ROLL_END_COL & ROLL_END_ROW)
     ThisWorkbook.Names.Add Name:="maxRollArea", RefersTo:=maxRange
     Debug.Print "[defineRollNamedRanges] -> maxRollArea : " & maxRange.Address
     
-    ' === Zone active basée sur la longueur cible ===
+    ' === Zone active basÃ©e sur la longueur cible ===
     Dim targetLen As Long: targetLen = CLng(TARGET_LENGTH_CELL.Value)
     Dim activeRange As Range: Set activeRange = maxRange.Resize(targetLen)
     ThisWorkbook.Names.Add Name:="activeRollArea", RefersTo:=activeRange
     Debug.Print "[defineRollNamedRanges] -> activeRollArea : " & activeRange.Address
     
-    ' === Zone inactive si nécessaire ===
+    ' === Zone inactive si nÃ©cessaire ===
     If targetLen < maxRange.Rows.Count Then
         Dim inactiveRange As Range
         Set inactiveRange = maxRange.Offset(targetLen).Resize(maxRange.Rows.Count - targetLen)
         ThisWorkbook.Names.Add Name:="inactiveRollArea", RefersTo:=inactiveRange
         Debug.Print "[defineRollNamedRanges] -> inactiveRollArea : " & inactiveRange.Address
     Else
-        ' Toujours créer inactiveRollArea, mais la référencer à =FAUX
+        ' Toujours crÃ©er inactiveRollArea, mais la rÃ©fÃ©rencer Ã  =FAUX
         ThisWorkbook.Names.Add Name:="inactiveRollArea", RefersTo:="=FAUX"
         Debug.Print "[defineRollNamedRanges] -> inactiveRollArea (FAUX)"
     End If
     
-    ' === Création des ranges de colonnes ===
+    ' === CrÃ©ation des ranges de colonnes ===
     Dim key As Variant, offsets As Variant, colOffset As Variant
     Dim rngUnion As Range
     For Each key In colConfig.Keys
@@ -162,14 +162,14 @@ Public Sub defineRollNamedRanges()
         Debug.Print "[defineRollNamedRanges] -> " & key & " : " & rngUnion.Address
     Next key
     
-    ' === Création des cellules de mesure d'épaisseur ===
+    ' === CrÃ©ation des cellules de mesure d'Ã©paisseur ===
     Dim measureCells As Object: Set measureCells = CreateObject("Scripting.Dictionary")
     measureCells.Add "left", New Collection
     measureCells.Add "right", New Collection
     measureCells.Add "leftSec", New Collection
     measureCells.Add "rightSec", New Collection
     
-    ' Détermination des lignes de mesure
+    ' DÃ©termination des lignes de mesure
     Dim measureRows As Collection: Set measureRows = New Collection
     If targetLen = 1 Then
         measureRows.Add 1 ' Officielle sur 1m
@@ -182,7 +182,7 @@ Public Sub defineRollNamedRanges()
         Next row
     End If
     
-    ' Création des cellules de mesure
+    ' CrÃ©ation des cellules de mesure
     Dim mRow As Variant
     For Each mRow In measureRows
         ' Cellules principales
@@ -221,7 +221,7 @@ Public Sub defineRollNamedRanges()
         End If
     Next mRow
     
-    ' Création des ranges finales
+    ' CrÃ©ation des ranges finales
     Dim finalRanges As Object: Set finalRanges = CreateObject("Scripting.Dictionary")
     Dim cellType As Variant, cell As Variant
     Dim i As Long
@@ -236,7 +236,7 @@ Public Sub defineRollNamedRanges()
         End If
     Next cellType
     
-    ' Création des noms de range pour les cellules de mesure
+    ' CrÃ©ation des noms de range pour les cellules de mesure
     If Not finalRanges("left") Is Nothing Then
         ThisWorkbook.Names.Add Name:="leftThicknessCels", RefersTo:=finalRanges("left")
         Debug.Print "[defineRollNamedRanges] -> leftThicknessCels : " & finalRanges("left").Address
@@ -261,7 +261,7 @@ Public Sub defineRollNamedRanges()
         End If
     End If
     
-    ' Création de la range unifiée pour toutes les cellules de mesure
+    ' CrÃ©ation de la range unifiÃ©e pour toutes les cellules de mesure
     Dim allThickness As Range
     Set allThickness = Nothing
     If finalRanges.Exists("left") Then
@@ -299,7 +299,7 @@ Public Sub defineRollNamedRanges()
         Debug.Print "[defineRollNamedRanges] -> allThicknessCels : " & allThickness.Address
     End If
     
-    ' Vérification que toutes les plages ont été créées
+    ' VÃ©rification que toutes les plages ont Ã©tÃ© crÃ©Ã©es
     Dim allRanges As Variant
     allRanges = Array("maxRollArea", "activeRollArea", "inactiveRollArea", _
                      "lengthCols", "leftThicknessCols", "rightThicknessCols", _
@@ -314,27 +314,27 @@ Public Sub defineRollNamedRanges()
         On Error GoTo 0
         
         If testRange Is Nothing Then
-            Debug.Print "[defineRollNamedRanges] ATTENTION : Plage non créée : " & name
+            Debug.Print "[defineRollNamedRanges] ATTENTION : Plage non crÃ©Ã©e : " & name
         End If
     Next name
 End Sub
 
-' Initialise les ranges nommées pour les valeurs limites de contrôle
-' @pre : PRODUCTION_WS doit être initialisé
+' Initialise les ranges nommÃ©es pour les valeurs limites de contrÃ´le
+' @pre : PRODUCTION_WS doit Ãªtre initialisÃ©
 ' @return : aucun
 Public Sub initCtrlLimitValues()
     If PRODUCTION_WS Is Nothing Then
-        Debug.Print "[initCtrlLimitValues] ERREUR : PRODUCTION_WS non initialisé"
+        Debug.Print "[initCtrlLimitValues] ERREUR : PRODUCTION_WS non initialisÃ©"
         Exit Sub
     End If
     
-    ' Suppression des ranges existantes pour éviter les doublons
+    ' Suppression des ranges existantes pour Ã©viter les doublons
     On Error Resume Next
     ThisWorkbook.Names(RANGE_CTRL_MIN_THICKNESS).Delete
     ThisWorkbook.Names(RANGE_CTRL_WARN_THICKNESS).Delete
     On Error GoTo 0
     
-    ' Création des nouvelles ranges
+    ' CrÃ©ation des nouvelles ranges
     ThisWorkbook.Names.Add Name:=RANGE_CTRL_MIN_THICKNESS, RefersTo:=PRODUCTION_WS.Range("BK59")  ' Seuil rouge
     ThisWorkbook.Names.Add Name:=RANGE_CTRL_WARN_THICKNESS, RefersTo:=PRODUCTION_WS.Range("BJ59")  ' Seuil orange
     
@@ -343,22 +343,22 @@ Public Sub initCtrlLimitValues()
     Debug.Print "[initCtrlLimitValues] -> " & RANGE_CTRL_WARN_THICKNESS & " : BJ59 (seuil orange)"
 End Sub
 
-' Initialise les ranges nommées pour les numéros OF
-' @pre : PRODUCTION_WS doit être initialisé
+' Initialise les ranges nommÃ©es pour les numÃ©ros OF
+' @pre : PRODUCTION_WS doit Ãªtre initialisÃ©
 ' @return : aucun
 Public Sub initOFRanges()
     If PRODUCTION_WS Is Nothing Then
-        Debug.Print "[initOFRanges] ERREUR : PRODUCTION_WS non initialisé"
+        Debug.Print "[initOFRanges] ERREUR : PRODUCTION_WS non initialisÃ©"
         Exit Sub
     End If
     
-    ' Suppression des ranges existantes pour éviter les doublons
+    ' Suppression des ranges existantes pour Ã©viter les doublons
     On Error Resume Next
     ThisWorkbook.Names(RANGE_OF_NUMBER).Delete
     ThisWorkbook.Names(RANGE_CUT_OF_NUMBER).Delete
     On Error GoTo 0
     
-    ' Création des nouvelles ranges
+    ' CrÃ©ation des nouvelles ranges
     ThisWorkbook.Names.Add Name:=RANGE_OF_NUMBER, RefersTo:=PRODUCTION_WS.Range("BH69")
     ThisWorkbook.Names.Add Name:=RANGE_CUT_OF_NUMBER, RefersTo:=PRODUCTION_WS.Range("BH73")
     
@@ -367,8 +367,8 @@ Public Sub initOFRanges()
     Debug.Print "[initOFRanges] -> " & RANGE_CUT_OF_NUMBER & " : BH73"
 End Sub
 
-' Initialise les ranges nommées pour les plages du rouleau
-' @pre : PRODUCTION_WS doit être initialisé
+' Initialise les ranges nommÃ©es pour les plages du rouleau
+' @pre : PRODUCTION_WS doit Ãªtre initialisÃ©
 ' @return : aucun
 Public Sub initProductRollRanges()
     ' Delete existing names if they exist

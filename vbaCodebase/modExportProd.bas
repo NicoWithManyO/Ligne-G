@@ -22,6 +22,13 @@ Public Sub saveRollFromProd()
         Exit Sub
     End If
     
+    ' Vérifier que toutes les épaisseurs sont présentes
+    Dim missingMeasurements As String
+    If Not AreAllThicknessesPresent(missingMeasurements) Then
+        MsgBox "Merci de renseigner toutes les épaisseurs requises avant de sauvegarder :" & vbCrLf & missingMeasurements, vbExclamation
+        Exit Sub
+    End If
+    
     ' Vérifier que les infos de poste (shift) sont renseignées
     Dim missingShiftFields As String
     missingShiftFields = ""

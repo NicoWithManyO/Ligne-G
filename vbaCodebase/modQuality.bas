@@ -410,7 +410,10 @@ End Sub
 ' @return Boolean : True si toutes les mesures sont présentes, False sinon
 ' @pré : PRODUCTION_WS doit être initialisé
 Public Function AreAllThicknessesPresent(Optional ByRef missingMeasurements As String = "") As Boolean
+    Debug.Print "[AreAllThicknessesPresent] Début de la vérification des épaisseurs"
+    
     If PRODUCTION_WS Is Nothing Then
+        Debug.Print "[AreAllThicknessesPresent] ERREUR : PRODUCTION_WS non initialisé"
         missingMeasurements = "Feuille PROD non initialisée"
         AreAllThicknessesPresent = False
         Exit Function
@@ -418,51 +421,100 @@ Public Function AreAllThicknessesPresent(Optional ByRef missingMeasurements As S
 
     Dim ws As Worksheet: Set ws = PRODUCTION_WS
     Dim targetLength As Double: targetLength = ws.Range(TARGET_LENGTH_ADDR).Value
+    Debug.Print "[AreAllThicknessesPresent] Longueur cible = " & targetLength & "m"
+    
+    ' Vérifier que la longueur cible est valide
+    If Not IsNumeric(targetLength) Or targetLength <= 0 Then
+        Debug.Print "[AreAllThicknessesPresent] ERREUR : Longueur cible invalide = " & targetLength
+        missingMeasurements = "Longueur cible invalide"
+        AreAllThicknessesPresent = False
+        Exit Function
+    End If
     
     ' Calculer les positions des mesures requises
     Dim requiredMeasurements As Collection: Set requiredMeasurements = New Collection
     Dim currentPos As Double: currentPos = ROLL_MEASURE_OFFSET
-    Do While currentPos <= targetLength
-        requiredMeasurements.Add currentPos
-        currentPos = currentPos + ROLL_MEASURE_INTERVAL
-    Loop
+    
+    ' Cas spéciaux pour les rouleaux courts
+    If targetLength = 1 Then
+        Debug.Print "[AreAllThicknessesPresent] Rouleau de 1m : mesure à 1m"
+        requiredMeasurements.Add 1
+    ElseIf targetLength = 2 Then
+        Debug.Print "[AreAllThicknessesPresent] Rouleau de 2m : mesure à 1m"
+        requiredMeasurements.Add 1
+    Else
+        Debug.Print "[AreAllThicknessesPresent] Rouleau de " & targetLength & "m : mesures tous les " & ROLL_MEASURE_INTERVAL & "m à partir de " & ROLL_MEASURE_OFFSET & "m"
+        Do While currentPos <= targetLength
+            requiredMeasurements.Add currentPos
+            Debug.Print "[AreAllThicknessesPresent]   -> Ajout position " & currentPos & "m"
+            currentPos = currentPos + ROLL_MEASURE_INTERVAL
+        Loop
+    End If
 
     ' Vérifier les mesures présentes
-    Dim thicknesses As Object: Set thicknesses = LoadAllThicknesses()
     Dim missingList As String: missingList = ""
-    Dim pos As Variant
     Dim positions As Variant: positions = Array("Gauche", "Droite")
     Dim posName As Variant
     Dim hasAllMeasurements As Boolean: hasAllMeasurements = True
 
+    Dim ctrlMin As Double
+    ctrlMin = CDbl(ws.Range("ctrlMinThickness").Value)
+
     ' Pour chaque position (Gauche et Droite)
     For Each posName In positions
         Dim missingForPosition As String: missingForPosition = ""
-        
-        ' Pour chaque position requise
+        Dim thickRange As Range
+        Dim secRange As Range
+
+        If posName = "Gauche" Then
+            Set thickRange = ws.Range("leftThicknessCels")
+            Set secRange = ws.Range("leftSecThicknessCels")
+        Else
+            Set thickRange = ws.Range("rightThicknessCels")
+            Set secRange = ws.Range("rightSecThicknessCels")
+        End If
+
+        Dim pos As Variant
         For Each pos In requiredMeasurements
-            Dim hasMeasurement As Boolean: hasMeasurement = False
-            
-            ' Vérifier dans les mesures principales et de rattrapage
-            Dim thickness As Object
-            For Each thickness In thicknesses(posName)
-                If thickness("rowOffset") = pos Then
-                    If (IsNumeric(thickness("value")) And thickness("value") <> "") Or _
-                       (thickness.Exists("rattrapageValue") And IsNumeric(thickness("rattrapageValue")) And thickness("rattrapageValue") <> "") Then
-                        hasMeasurement = True
-                        Exit For
+            Dim allColsOK As Boolean: allColsOK = True
+            Dim colIdx As Integer: colIdx = 0
+
+            ' Pour chaque colonne de la ligne concernée
+            Dim cell As Range
+            For Each cell In thickRange.Cells
+                If cell.Row - ROLL_START_ROW + 1 = pos Then
+                    colIdx = colIdx + 1
+                    Dim val As Variant
+                    val = cell.Value
+
+                    If val = "" Or Not IsNumeric(val) Then
+                        allColsOK = False
+                    ElseIf val < ctrlMin Then
+                        ' Chercher la cellule de rattrapage correspondante (même colonne, même ligne)
+                        Dim secCell As Range
+                        Dim sc As Range
+                        Set secCell = Nothing
+                        For Each sc In secRange.Cells
+                            If (sc.Row = cell.Row + 1 Or sc.Row = cell.Row - 1) And sc.Column = cell.Column Then
+                                Set secCell = sc
+                                Exit For
+                            End If
+                        Next sc
+                        If secCell Is Nothing Then
+                            allColsOK = False
+                        ElseIf secCell.Value = "" Then
+                            allColsOK = False
+                        End If
                     End If
                 End If
-            Next thickness
+            Next cell
 
-            ' Si la mesure est manquante, l'ajouter à la liste pour cette position
-            If Not hasMeasurement Then
+            If Not allColsOK Then
                 If missingForPosition <> "" Then missingForPosition = missingForPosition & ", "
                 missingForPosition = missingForPosition & pos & "m"
             End If
         Next pos
 
-        ' Si des mesures sont manquantes pour cette position
         If missingForPosition <> "" Then
             hasAllMeasurements = False
             If missingList <> "" Then missingList = missingList & " | "
@@ -474,6 +526,24 @@ Public Function AreAllThicknessesPresent(Optional ByRef missingMeasurements As S
     missingMeasurements = missingList
     
     ' Retourner True si toutes les mesures sont présentes pour toutes les positions
+    Debug.Print "[AreAllThicknessesPresent] Résultat final : " & IIf(hasAllMeasurements, "Toutes les mesures sont présentes", "Mesures manquantes : " & missingList)
     AreAllThicknessesPresent = hasAllMeasurements
 End Function
+
+' Procédure de test simple pour AreAllThicknessesPresent
+' @but : Tester la fonction AreAllThicknessesPresent sur la feuille courante
+' @param Aucun
+' @return Aucun
+Public Sub TestAreAllThicknessesPresent()
+    Dim missing As String
+    Dim result As Boolean
+    result = AreAllThicknessesPresent(missing)
+    If result Then
+        MsgBox "Toutes les épaisseurs requises sont présentes.", vbInformation
+    Else
+        MsgBox "Mesures d'épaisseur manquantes : " & missing, vbExclamation
+    End If
+End Sub
+
+
 

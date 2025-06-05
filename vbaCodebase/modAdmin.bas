@@ -77,7 +77,7 @@ Public Sub ClearThicknessCells()
 End Sub
 
 ' Vide toutes les cellules de la zone active du rouleau (activeRollArea)
-' @but : Réinitialiser complètement la zone de saisie du rouleau
+' @but : Réinitialiser complétement la zone de saisie du rouleau
 ' @param Aucun
 ' @return Aucun
 ' @pré : La plage nommée activeRollArea doit exister et PRODUCTION_WS doit être initialisé
@@ -98,7 +98,7 @@ Public Sub ClearAllActiveRollArea()
     Call RewriteActiveRollLengths
 End Sub
 
-' Réécrit les métrages (1, 2, 3, ...) dans les colonnes de longueur de la zone active
+' Récrit les métrages (1, 2, 3, ...) dans les colonnes de longueur de la zone active
 ' @but : Restaurer les valeurs de métrage après un vidage complet de la zone active
 ' @param Aucun
 ' @return Aucun

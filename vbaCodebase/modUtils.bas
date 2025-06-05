@@ -175,3 +175,20 @@ Public Sub SetModePermissif(val As Boolean)
     MODE_PERMISSIF = val
     WriteModePermissifToSheet
 End Sub
+
+
+' Vérifie si un nom existe dans le classeur
+' @but : Vérifier l'existence d'un nom défini dans le classeur
+' @param nom (String) : nom à vérifier
+' @return Boolean : True si le nom existe, False sinon
+' @pré : Aucun
+Public Function NameExists(nom As String) As Boolean
+    Dim n As Name
+    NameExists = False
+    For Each n In ThisWorkbook.Names
+        If n.Name = nom Or n.Name Like "*" & nom Then
+            NameExists = True
+            Exit Function
+        End If
+    Next n
+End Function
