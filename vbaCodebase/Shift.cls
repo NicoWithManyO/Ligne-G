@@ -202,5 +202,7 @@ Public Sub AppendToDataShifts(ws As Worksheet)
     ws.Cells(nextRow, 10).Value = Commentaires
     ws.Cells(nextRow, 11).Value = Now ' Ajout de la date/heure de sauvegarde
     Call ExportGlobalsCtrlToSheet
+    Call ClearGlobalsCtrlValues
+    ws.Range("AU59").Value = 0
     MsgBox "Le poste a été enregistré avec succès.", vbInformation, "Enregistrement réussi"
 End Sub
