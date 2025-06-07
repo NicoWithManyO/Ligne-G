@@ -2,17 +2,17 @@ Attribute VB_Name = "INIT"
 
 Option Explicit
 
-' Initialise tous les composants nÃ©cessaires aprÃ¨s le chargement des modules
-' @pre : les modules doivent Ãªtre chargÃ©s
+' Initialise tous les composants nécessaires après le chargement des modules
+' @pre : les modules doivent être chargés
 ' @return : aucun
 Public Sub initializeComponents()
-    Debug.Print "[initializeComponents] DÃ©but de l'initialisation"
+    Debug.Print "[initializeComponents] Début de l'initialisation"
     MODE_PERMISSIF = True
     
     ' Initialisation de la feuille de production
     Set PRODUCTION_WS = ThisWorkbook.Sheets("PROD")
     If PRODUCTION_WS Is Nothing Then
-        Debug.Print "[initializeComponents] ERREUR : Feuille PROD non trouvÃ©e"
+        Debug.Print "[initializeComponents] ERREUR : Feuille PROD non trouvée"
         Exit Sub
     End If
 
@@ -22,11 +22,13 @@ Public Sub initializeComponents()
     Call initOFRanges
     Call initProductRollRanges
     Call defineRollNamedRanges
+    
+    Call initGlobalsCtrlRanges
 
     Call FormatRollLayout
     Call initCtrlLimitValues
     
-    Debug.Print "[initializeComponents] Initialisation terminÃ©e"
+    Debug.Print "[initializeComponents] Initialisation terminée"
 
     Call IsRollConformDefects
     Call saveDetectedDefects

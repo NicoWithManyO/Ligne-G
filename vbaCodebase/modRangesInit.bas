@@ -407,3 +407,57 @@ Public Sub initProductRollRanges()
     Debug.Print "[initProductRollRanges] -> " & RANGE_PRODUCTROLL_DEFECTS & " : BG85"
 End Sub
 
+' Initialise les ranges nommées pour les valeurs limites de contrôle
+' @pre : PRODUCTION_WS doit être initialisé
+' @return : aucun
+Public Sub initGlobalsCtrlRanges()
+    If PRODUCTION_WS Is Nothing Then
+        Debug.Print "[initGlobalsCtrlRanges] ERREUR : Feuille PROD non initialisée"
+        Exit Sub
+    End If
+
+    ' Suppression des anciens noms
+    On Error Resume Next
+    ThisWorkbook.Names("masseSurfaciqueGG").Delete
+    ThisWorkbook.Names("masseSurfaciqueGC").Delete
+    ThisWorkbook.Names("masseSurfaciqueDC").Delete
+    ThisWorkbook.Names("masseSurfaciqueDD").Delete
+    ThisWorkbook.Names("micG1").Delete
+    ThisWorkbook.Names("micG2").Delete
+    ThisWorkbook.Names("micG3").Delete
+    ThisWorkbook.Names("micD1").Delete
+    ThisWorkbook.Names("micD2").Delete
+    ThisWorkbook.Names("micD3").Delete
+    ThisWorkbook.Names("bain").Delete
+    ThisWorkbook.Names("loi").Delete
+    ' Suppression min/max
+    ThisWorkbook.Names("micronnaireMin").Delete
+    ThisWorkbook.Names("micronnaireMax").Delete
+    ThisWorkbook.Names("bainMin").Delete
+    ThisWorkbook.Names("bainMax").Delete
+    ThisWorkbook.Names("masseSurfMin").Delete
+    ThisWorkbook.Names("masseSurfMax").Delete
+    On Error GoTo 0
+
+    ' Création des nouvelles ranges (à adapter avec les adresses réelles)
+    ThisWorkbook.Names.Add Name:="masseSurfaciqueGG", RefersTo:=PRODUCTION_WS.Range("AM63")
+    ThisWorkbook.Names.Add Name:="masseSurfaciqueGC", RefersTo:=PRODUCTION_WS.Range("AQ63")
+    ThisWorkbook.Names.Add Name:="masseSurfaciqueDC", RefersTo:=PRODUCTION_WS.Range("AW63")
+    ThisWorkbook.Names.Add Name:="masseSurfaciqueDD", RefersTo:=PRODUCTION_WS.Range("BA63")
+    ThisWorkbook.Names.Add Name:="micG1", RefersTo:=PRODUCTION_WS.Range("AO55")
+    ThisWorkbook.Names.Add Name:="micG2", RefersTo:=PRODUCTION_WS.Range("AO56")
+    ThisWorkbook.Names.Add Name:="micG3", RefersTo:=PRODUCTION_WS.Range("AO57")
+    ThisWorkbook.Names.Add Name:="micD1", RefersTo:=PRODUCTION_WS.Range("AY55")
+    ThisWorkbook.Names.Add Name:="micD2", RefersTo:=PRODUCTION_WS.Range("AY56")
+    ThisWorkbook.Names.Add Name:="micD3", RefersTo:=PRODUCTION_WS.Range("AY57")
+    ThisWorkbook.Names.Add Name:="bain", RefersTo:=PRODUCTION_WS.Range("AT55")
+    ThisWorkbook.Names.Add Name:="loi", RefersTo:=PRODUCTION_WS.Range("AT58")
+    ' Création des plages min/max
+    ThisWorkbook.Names.Add Name:="micronnaireMin", RefersTo:=PRODUCTION_WS.Range("BH61")
+    ThisWorkbook.Names.Add Name:="micronnaireMax", RefersTo:=PRODUCTION_WS.Range("BK61")
+    ThisWorkbook.Names.Add Name:="bainMin", RefersTo:=PRODUCTION_WS.Range("BH62")
+    ThisWorkbook.Names.Add Name:="bainMax", RefersTo:=PRODUCTION_WS.Range("BK62")
+    ThisWorkbook.Names.Add Name:="masseSurfMin", RefersTo:=PRODUCTION_WS.Range("BH64")
+    ThisWorkbook.Names.Add Name:="masseSurfMax", RefersTo:=PRODUCTION_WS.Range("BK64")
+End Sub
+
