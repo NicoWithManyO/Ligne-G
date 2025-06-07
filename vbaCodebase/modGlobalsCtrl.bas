@@ -82,6 +82,13 @@ Public Sub ExportGlobalsCtrlToSheet()
         Exit Sub
     End If
 
+    ' Vérifier si les contrôles ont déjà été sauvegardés (plage fusionnée)
+    ' On teste la première cellule de la plage fusionnée pour éviter l'incompatibilité de type
+    If PRODUCTION_WS.Range("AR60:AV60").Cells(1, 1).Value = "Contrôles Sauvegardés" Then
+        MsgBox "Ces contrôles ont déjà été sauvegardés", vbExclamation
+        Exit Sub
+    End If
+
     Dim lastRow As Long
     lastRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
     Dim isEmpty As Boolean: isEmpty = (ws.Cells(1, 1).Value = "")
@@ -109,44 +116,48 @@ Public Sub ExportGlobalsCtrlToSheet()
 
     ' Écrire les en-têtes si la feuille est vide
     If isEmpty Then
-        ws.Cells(1, 1).Value = "shiftID"
-        ws.Cells(1, 2).Value = "moyenneMicG"
-        ws.Cells(1, 3).Value = "moyenneMicD"
-        ws.Cells(1, 4).Value = "micG1"
-        ws.Cells(1, 5).Value = "micG2"
-        ws.Cells(1, 6).Value = "micG3"
-        ws.Cells(1, 7).Value = "micD1"
-        ws.Cells(1, 8).Value = "micD2"
-        ws.Cells(1, 9).Value = "micD3"
-        ws.Cells(1, 10).Value = "masseSurfaciqueGG"
-        ws.Cells(1, 11).Value = "masseSurfaciqueGC"
-        ws.Cells(1, 12).Value = "masseSurfaciqueDC"
-        ws.Cells(1, 13).Value = "masseSurfaciqueDD"
-        ws.Cells(1, 14).Value = "bain"
-        ws.Cells(1, 15).Value = "loi"
-        ws.Cells(1, 16).Value = "productRollID"
-        ws.Cells(1, 17).Value = "saveDateTime"
+        ws.Cells(1, 1).Value = "globalsCtrlID"
+        ws.Cells(1, 2).Value = "shiftID"
+        ws.Cells(1, 3).Value = "moyenneMicG"
+        ws.Cells(1, 4).Value = "moyenneMicD"
+        ws.Cells(1, 5).Value = "micG1"
+        ws.Cells(1, 6).Value = "micG2"
+        ws.Cells(1, 7).Value = "micG3"
+        ws.Cells(1, 8).Value = "micD1"
+        ws.Cells(1, 9).Value = "micD2"
+        ws.Cells(1, 10).Value = "micD3"
+        ws.Cells(1, 11).Value = "masseSurfaciqueGG"
+        ws.Cells(1, 12).Value = "masseSurfaciqueGC"
+        ws.Cells(1, 13).Value = "masseSurfaciqueDC"
+        ws.Cells(1, 14).Value = "masseSurfaciqueDD"
+        ws.Cells(1, 15).Value = "bain"
+        ws.Cells(1, 16).Value = "loi"
+        ws.Cells(1, 17).Value = "productRollID"
+        ws.Cells(1, 18).Value = "saveDateTime"
         lastRow = 1
     End If
 
     Dim nextRow As Long: nextRow = lastRow + 1
-    ws.Cells(nextRow, 1).Value = ThisWorkbook.Names("shiftID").RefersToRange.Value
-    ws.Cells(nextRow, 2).Value = moyenneMicG
-    ws.Cells(nextRow, 3).Value = moyenneMicD
-    ws.Cells(nextRow, 4).Value = micG1
-    ws.Cells(nextRow, 5).Value = micG2
-    ws.Cells(nextRow, 6).Value = micG3
-    ws.Cells(nextRow, 7).Value = micD1
-    ws.Cells(nextRow, 8).Value = micD2
-    ws.Cells(nextRow, 9).Value = micD3
-    ws.Cells(nextRow, 10).Value = ThisWorkbook.Names("masseSurfaciqueGG").RefersToRange.Value
-    ws.Cells(nextRow, 11).Value = ThisWorkbook.Names("masseSurfaciqueGC").RefersToRange.Value
-    ws.Cells(nextRow, 12).Value = ThisWorkbook.Names("masseSurfaciqueDC").RefersToRange.Value
-    ws.Cells(nextRow, 13).Value = ThisWorkbook.Names("masseSurfaciqueDD").RefersToRange.Value
-    ws.Cells(nextRow, 14).Value = ThisWorkbook.Names("bain").RefersToRange.Value
-    ws.Cells(nextRow, 15).Value = ThisWorkbook.Names("loi").RefersToRange.Value
-    ws.Cells(nextRow, 16).Value = ThisWorkbook.Names("productRollID").RefersToRange.Value
-    ws.Cells(nextRow, 17).Value = Now
+    ws.Cells(nextRow, 1).Value = ThisWorkbook.Names("globalsCtrlID").RefersToRange.Value
+    ws.Cells(nextRow, 2).Value = ThisWorkbook.Names("shiftID").RefersToRange.Value
+    ws.Cells(nextRow, 3).Value = moyenneMicG
+    ws.Cells(nextRow, 4).Value = moyenneMicD
+    ws.Cells(nextRow, 5).Value = micG1
+    ws.Cells(nextRow, 6).Value = micG2
+    ws.Cells(nextRow, 7).Value = micG3
+    ws.Cells(nextRow, 8).Value = micD1
+    ws.Cells(nextRow, 9).Value = micD2
+    ws.Cells(nextRow, 10).Value = micD3
+    ws.Cells(nextRow, 11).Value = ThisWorkbook.Names("masseSurfaciqueGG").RefersToRange.Value
+    ws.Cells(nextRow, 12).Value = ThisWorkbook.Names("masseSurfaciqueGC").RefersToRange.Value
+    ws.Cells(nextRow, 13).Value = ThisWorkbook.Names("masseSurfaciqueDC").RefersToRange.Value
+    ws.Cells(nextRow, 14).Value = ThisWorkbook.Names("masseSurfaciqueDD").RefersToRange.Value
+    ws.Cells(nextRow, 15).Value = ThisWorkbook.Names("bain").RefersToRange.Value
+    ws.Cells(nextRow, 16).Value = ThisWorkbook.Names("loi").RefersToRange.Value
+    ws.Cells(nextRow, 17).Value = ThisWorkbook.Names("productRollID").RefersToRange.Value
+    ws.Cells(nextRow, 18).Value = Now
+
+    Call SetGlobalsCtrlSaved
 End Sub
 
 Public Sub ClearGlobalsCtrlValues()
@@ -158,5 +169,28 @@ Public Sub ClearGlobalsCtrlValues()
     For i = LBound(ctrlNames) To UBound(ctrlNames)
         ThisWorkbook.Names(ctrlNames(i)).RefersToRange.Value = ""
     Next i
+    Call ResetGlobalsCtrlSaved
 End Sub
 
+Public Sub SetGlobalsCtrlSaved()
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Sheets("PROD")
+    Dim wasProtected As Boolean: wasProtected = ws.ProtectContents
+    If wasProtected Then ws.Unprotect
+    ws.Range("AR60:AV60").Value = "Contrôles Sauvegardés"
+    ws.Range("AU59").Value = ws.Range("AU59").Value + 1
+    ' ws.Range("AR60:AV60").Interior.Color = RGB(0, 176, 80) ' Vert Excel
+    ' ws.Range("AK60:BC60").Interior.Color = RGB(0, 176, 80)
+    If wasProtected Then ws.Protect
+End Sub
+
+Public Sub ResetGlobalsCtrlSaved()
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Sheets("PROD")
+    Dim wasProtected As Boolean: wasProtected = ws.ProtectContents
+    If wasProtected Then ws.Unprotect 
+    ws.Range("AR60:AV60").Value = ""
+    ' ws.Range("AR60:AV60").Interior.Color = RGB(77, 147, 217) ' Bleu #4D93D9
+    ' ws.Range("AK60:BC60").Interior.Color = RGB(77, 147, 217)
+    If wasProtected Then ws.Protect
+End Sub

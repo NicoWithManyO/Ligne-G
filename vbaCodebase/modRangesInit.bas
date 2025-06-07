@@ -437,6 +437,8 @@ Public Sub initGlobalsCtrlRanges()
     ThisWorkbook.Names("bainMax").Delete
     ThisWorkbook.Names("masseSurfMin").Delete
     ThisWorkbook.Names("masseSurfMax").Delete
+
+    ThisWorkbook.Names("globalsCtrlID").Delete
     On Error GoTo 0
 
     ' Création des nouvelles ranges (à adapter avec les adresses réelles)
@@ -459,5 +461,7 @@ Public Sub initGlobalsCtrlRanges()
     ThisWorkbook.Names.Add Name:="bainMax", RefersTo:=PRODUCTION_WS.Range("BK62")
     ThisWorkbook.Names.Add Name:="masseSurfMin", RefersTo:=PRODUCTION_WS.Range("BH64")
     ThisWorkbook.Names.Add Name:="masseSurfMax", RefersTo:=PRODUCTION_WS.Range("BK64")
+    
+    ThisWorkbook.Names.Add Name:="globalsCtrlID", RefersTo:=PRODUCTION_WS.Range("AT59")
 End Sub
 

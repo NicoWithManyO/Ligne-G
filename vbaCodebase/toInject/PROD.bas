@@ -93,6 +93,19 @@ Private Sub Worksheet_Change(ByVal Target As Range)
         Call initializeComponents
     End If
 
+    ' Vérifie si la cellule modifiée est une des cellules de contrôle global
+    Dim ctrlNames As Variant
+    ctrlNames = Array("micG1", "micG2", "micG3", "micD1", "micD2", "micD3", _
+        "masseSurfaciqueGG", "masseSurfaciqueGC", "masseSurfaciqueDC", "masseSurfaciqueDD", _
+        "bain", "loi")
+    Dim i As Integer
+    For i = LBound(ctrlNames) To UBound(ctrlNames)
+        If Not Intersect(Target, Range(ctrlNames(i))) Is Nothing Then
+            Range("AR60:AV60").Value = ""
+            Exit For
+        End If
+    Next i
+
 SafeExit:
     ' Reproter la feuille si elle était protégée
     If wasProtected Then Me.Protect
