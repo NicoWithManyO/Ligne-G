@@ -41,6 +41,7 @@ Public Sub loadModulesFromFolder()
             Debug.Print "[loadModulesFromFolder] imported -> " & file.Name
         End If
     Next file
+    call injectModulesFromToInject
 
 End Sub
 
@@ -96,7 +97,8 @@ Public Sub injectModulesFromToInject()
         End If
     Next fichier
 
-    MsgBox "Injection terminée -> modules chargés depuis toInject", vbInformation
+    MsgBox "Chargement & Injection terminés -> modules chargés", vbInformation
+
 End Sub
 
 

@@ -30,11 +30,11 @@ Public Sub initializeComponents()
     
     Debug.Print "[initializeComponents] Initialisation terminée"
 
-    Call IsRollConformDefects
-    Call saveDetectedDefects
+    ' Call IsRollConformDefects
+    ' Call saveDetectedDefects
 
-    Call IsRollConformThickness
-    Call saveDetectedThickness
+    ' Call IsRollConformThickness
+    ' Call saveDetectedThickness
 
     ' Ajout : réécriture des métrages à chaque init
     Call RewriteActiveRollLengths
