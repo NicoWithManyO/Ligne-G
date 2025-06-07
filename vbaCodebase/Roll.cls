@@ -5,16 +5,16 @@ END
 Attribute VB_Name = "Roll"
 Option Explicit
 
-' Propriï¿½tï¿½s Roll
+' Propriétés Roll
 ' ID : Identifiant unique du rouleau
 Public ID As Variant
-' OF : Numï¿½ro d'ordre de fabrication
+' OF : Numéro d'ordre de fabrication
 Public OF As Variant
-' Number : Numï¿½ro du rouleau
+' Number : Numéro du rouleau
 Public Number As Variant
 ' FabricationShift : Poste de fabrication
 Public FabricationShift As Variant
-' FabricationOperator : Opï¿½rateur de fabrication
+' FabricationOperator : Opérateur de fabrication
 Public FabricationOperator As Variant
 ' OFInProgress : OF en cours
 Public OFInProgress As Variant
@@ -30,15 +30,19 @@ Public TotalWeight As Variant
 Public Weight As Variant
 ' Length : Longueur
 Public Length As Variant
-' Status : ï¿½tat du rouleau
+' Status : État du rouleau
 Public Status As Variant
 ' SaveDateTime : Date et heure de la sauvegarde
 Public SaveDateTime As Variant
-' Defects : Dï¿½fauts dï¿½tectï¿½s
+' Defects : Défauts détectés
 Public Defects As Variant
-' Thicknesses : ï¿½paisseurs mesurï¿½es (3m et 8m)
+' Thicknesses : Épaisseurs mesurées (3m et 8m)
 Public Thicknesses As Object
-' Mesures dynamiques (toujours prï¿½sentes, vides si inutilisï¿½es)
+' averageLeftThickness : Moyenne des épaisseurs côté gauche
+Public averageLeftThickness As Double
+' averageRightThickness : Moyenne des épaisseurs côté droit
+Public averageRightThickness As Double
+' Mesures dynamiques (toujours présentes, vides si inutilisées)
 Public Mesure1 As String
 Public Mesure2 As String
 Public Mesure3 As String
@@ -49,10 +53,10 @@ Public Mesure7 As String
 Public Mesure8 As String
 Public Mesure9 As String
 Public Mesure10 As String
-' Gm2 : Masse linï¿½aire
+' Gm2 : Masse linéaire
 Public Gm2 As Variant
 
-' Structure pour dï¿½finir une colonne
+' Structure pour définir une colonne
 Private Type ColumnConfig
     Header As String
     PropertyName As String
@@ -60,45 +64,47 @@ End Type
 
 ' Configuration des colonnes
 Private Function GetColumnConfig() As Variant
-    Dim config(1 To 22) As Object
+    Dim config(1 To 24) As Object
     Dim i As Integer
 
-    For i = 1 To 22
+    For i = 1 To 24
         Set config(i) = CreateObject("Scripting.Dictionary")
     Next i
 
     config(1)("Header") = "ID": config(1)("PropertyName") = "ID"
     config(2)("Header") = "OF": config(2)("PropertyName") = "OF"
-    config(3)("Header") = "Numï¿½ro": config(3)("PropertyName") = "Number"
+    config(3)("Header") = "Numéro": config(3)("PropertyName") = "Number"
     config(4)("Header") = "Poste": config(4)("PropertyName") = "FabricationShift"
     config(5)("Header") = "Statut": config(5)("PropertyName") = "Status"
     config(6)("Header") = "Poids tube": config(6)("PropertyName") = "PipeWeight"
     config(7)("Header") = "Poids total": config(7)("PropertyName") = "TotalWeight"
     config(8)("Header") = "Poids": config(8)("PropertyName") = "Weight"
     config(9)("Header") = "Longueur": config(9)("PropertyName") = "Length"
-    config(10)("Header") = "g/mï¿½": config(10)("PropertyName") = "Gm2"
+    config(10)("Header") = "g/m²": config(10)("PropertyName") = "Gm2"
     config(11)("Header") = "Date sauvegarde": config(11)("PropertyName") = "SaveDateTime"
-    config(12)("Header") = "Dï¿½fauts": config(12)("PropertyName") = "Defects"
-    config(13)("Header") = "Mesure 1": config(13)("PropertyName") = "Mesure1"
-    config(14)("Header") = "Mesure 2": config(14)("PropertyName") = "Mesure2"
-    config(15)("Header") = "Mesure 3": config(15)("PropertyName") = "Mesure3"
-    config(16)("Header") = "Mesure 4": config(16)("PropertyName") = "Mesure4"
-    config(17)("Header") = "Mesure 5": config(17)("PropertyName") = "Mesure5"
-    config(18)("Header") = "Mesure 6": config(18)("PropertyName") = "Mesure6"
-    config(19)("Header") = "Mesure 7": config(19)("PropertyName") = "Mesure7"
-    config(20)("Header") = "Mesure 8": config(20)("PropertyName") = "Mesure8"
-    config(21)("Header") = "Mesure 9": config(21)("PropertyName") = "Mesure9"
-    config(22)("Header") = "Mesure 10": config(22)("PropertyName") = "Mesure10"
+    config(12)("Header") = "Défauts": config(12)("PropertyName") = "Defects"
+    config(13)("Header") = "Avg Left Thickness": config(13)("PropertyName") = "averageLeftThickness"
+    config(14)("Header") = "Avg Right Thickness": config(14)("PropertyName") = "averageRightThickness"
+    config(15)("Header") = "Mesure 1": config(15)("PropertyName") = "Mesure1"
+    config(16)("Header") = "Mesure 2": config(16)("PropertyName") = "Mesure2"
+    config(17)("Header") = "Mesure 3": config(17)("PropertyName") = "Mesure3"
+    config(18)("Header") = "Mesure 4": config(18)("PropertyName") = "Mesure4"
+    config(19)("Header") = "Mesure 5": config(19)("PropertyName") = "Mesure5"
+    config(20)("Header") = "Mesure 6": config(20)("PropertyName") = "Mesure6"
+    config(21)("Header") = "Mesure 7": config(21)("PropertyName") = "Mesure7"
+    config(22)("Header") = "Mesure 8": config(22)("PropertyName") = "Mesure8"
+    config(23)("Header") = "Mesure 9": config(23)("PropertyName") = "Mesure9"
+    config(24)("Header") = "Mesure 10": config(24)("PropertyName") = "Mesure10"
 
     GetColumnConfig = config
 End Function
 
-' Charge les donnï¿½es depuis la feuille
-' @but : Charge les donnï¿½es du rouleau depuis la feuille de production
+' Charge les données depuis la feuille
+' @but : Charge les données du rouleau depuis la feuille de production
 ' @param ws : Feuille de travail source
 ' @return : aucun
 Public Sub LoadFromSheet(ws As Worksheet)
-    ' Chargement des propriï¿½tï¿½s de base
+    ' Chargement des propriétés de base
     Dim idValue As Variant
     idValue = ws.Range(RANGE_PRODUCTROLL_ID).Value
     If IsEmpty(idValue) Or idValue = "" Then
@@ -122,21 +128,27 @@ Public Sub LoadFromSheet(ws As Worksheet)
         Weight = TotalWeight - PipeWeight
     End If
     
-    ' Calcul du g/mï¿½
+    ' Calcul du g/m²
     If Not IsEmpty(Weight) And Not IsEmpty(Length) And Length <> 0 Then
         Gm2 = Weight / Length
     Else
         Gm2 = ""
     End If
     
-    ' Chargement des mesures tous les 5m (jusqu'ï¿½ 10 mesures)
+    ' Chargement des mesures tous les 5m (jusqu'à 10 mesures)
     Dim thicknesses As Object
     Set thicknesses = LoadAllThicknesses()
+    Set Me.Thicknesses = thicknesses
     
     Dim i As Integer, m As Integer
     Dim mesureStr As String
     For m = 1 To 10
-        mesureStr = GetMesureString(thicknesses, m)
+        mesureStr = ""
+        If Not thicknesses Is Nothing Then
+            If thicknesses.Exists("Gauche") And thicknesses.Exists("Droite") Then
+                mesureStr = GetMesureString(thicknesses, m)
+            End If
+        End If
         Select Case m
             Case 1: Me.Mesure1 = mesureStr
             Case 2: Me.Mesure2 = mesureStr
@@ -150,9 +162,12 @@ Public Sub LoadFromSheet(ws As Worksheet)
             Case 10: Me.Mesure10 = mesureStr
         End Select
     Next m
+    
+    ' Calcul des moyennes d'épaisseur
+    Call calculateThicknessAverages
 End Sub
 
-' Gï¿½nï¿½re la chaï¿½ne de mesure pour la m-iï¿½me mesure (tous les 5m)
+' Génère la chaîne de mesure pour la m-ième mesure (tous les 5m)
 Private Function GetMesureString(thicknesses As Object, mesureIndex As Integer) As String
     ' mesureIndex = 1 pour 5m, 2 pour 10m, ...
     Dim offset As Integer: offset = (mesureIndex - 1) * 5 + 1
@@ -214,19 +229,19 @@ Private Function GetMesureString(thicknesses As Object, mesureIndex As Integer) 
     End If
 End Function
 
-' Sauvegarde les donnï¿½es dans la feuille
-' @but : Sauvegarde les donnï¿½es du rouleau dans la feuille de production
+' Sauvegarde les données dans la feuille
+' @but : Sauvegarde les données du rouleau dans la feuille de production
 ' @param ws : Feuille de travail cible
 ' @return : aucun
 Public Sub SaveToSheet(ws As Worksheet)
     Dim nextRow As Long
     nextRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row + 1
     
-    ' Rï¿½cupï¿½rer la configuration des colonnes
+    ' Récupérer la configuration des colonnes
     Dim config As Variant
     config = GetColumnConfig()
     
-    ' Si la ligne 1 est vide, rï¿½ï¿½crire les en-tï¿½tes
+    ' Si la ligne 1 est vide, réécrire les en-têtes
     Dim i As Integer, enteteVide As Boolean
     enteteVide = True
     For i = 1 To UBound(config)
@@ -241,7 +256,7 @@ Public Sub SaveToSheet(ws As Worksheet)
         Next i
     End If
     
-    ' Sauvegarder les donnï¿½es
+    ' Sauvegarder les données
     For i = 1 To UBound(config)
         If config(i)("PropertyName") = "SaveDateTime" Then
             ws.Cells(nextRow, i).Value = Now()
@@ -251,9 +266,9 @@ Public Sub SaveToSheet(ws As Worksheet)
     Next i
 End Sub
 
-' Formate les ï¿½paisseurs en chaï¿½ne de caractï¿½res pour la sauvegarde
-' @but : Convertit les donnï¿½es d'ï¿½paisseurs en chaï¿½ne formatï¿½e
-' @return String : Chaï¿½ne formatï¿½e des ï¿½paisseurs
+' Formate les épaisseurs en chaîne de caractères pour la sauvegarde
+' @but : Convertit les données d'épaisseurs en chaîne formatée
+' @return String : Chaîne formatée des épaisseurs
 Private Function FormatThicknessesToString() As String
     Dim result As String
     result = ""
@@ -267,10 +282,10 @@ Private Function FormatThicknessesToString() As String
     FormatThicknessesToString = result
 End Function
 
-' Formate une collection d'ï¿½paisseurs en chaï¿½ne
-' @but : Convertit une collection d'ï¿½paisseurs en chaï¿½ne formatï¿½e
-' @param coll : Collection d'ï¿½paisseurs ï¿½ formater
-' @return String : Chaï¿½ne formatï¿½e des ï¿½paisseurs
+' Formate une collection d'épaisseurs en chaîne
+' @but : Convertit une collection d'épaisseurs en chaîne formatée
+' @param coll : Collection d'épaisseurs à formater
+' @return String : Chaîne formatée des épaisseurs
 Private Function FormatThicknessCollection(coll As Collection) As String
     Dim result As String
     result = ""
@@ -287,15 +302,59 @@ Private Function FormatThicknessCollection(coll As Collection) As String
     FormatThicknessCollection = result
 End Function
 
+' Calcule les moyennes des épaisseurs gauche et droite
+' @but : Calcule les moyennes des épaisseurs mesurées
+' @return : aucun
+Public Sub calculateThicknessAverages()
+    Dim sumLeft As Double: sumLeft = 0
+    Dim countLeft As Integer: countLeft = 0
+    Dim sumRight As Double: sumRight = 0
+    Dim countRight As Integer: countRight = 0
+    
+    ' Calcul de la moyenne côté gauche
+    Dim thickness As Object
+    If Not Thicknesses Is Nothing Then
+        If Thicknesses.Exists("Gauche") Then
+            For Each thickness In Thicknesses("Gauche")
+                If Not IsEmpty(thickness("value")) Then
+                    sumLeft = sumLeft + thickness("value")
+                    countLeft = countLeft + 1
+                End If
+            Next thickness
+        End If
+        ' Calcul de la moyenne côté droit
+        If Thicknesses.Exists("Droite") Then
+            For Each thickness In Thicknesses("Droite")
+                If Not IsEmpty(thickness("value")) Then
+                    sumRight = sumRight + thickness("value")
+                    countRight = countRight + 1
+                End If
+            Next thickness
+        End If
+    End If
+    ' Calcul des moyennes finales
+    If countLeft > 0 Then
+        averageLeftThickness = sumLeft / countLeft
+    Else
+        averageLeftThickness = 0
+    End If
+    
+    If countRight > 0 Then
+        averageRightThickness = sumRight / countRight
+    Else
+        averageRightThickness = 0
+    End If
+End Sub
+
 Private Sub Class_Initialize()
     ' Initialiser les collections
     Set Defects = New Collection
     
-    ' Charger les donnï¿½es depuis la feuille de production
+    ' Charger les données depuis la feuille de production
     If Not PRODUCTION_WS Is Nothing Then
         LoadFromSheet PRODUCTION_WS
-        Debug.Print "[Roll] Rouleau initialisï¿½ : " & ID
+        Debug.Print "[Roll] Rouleau initialisé : " & ID
     Else
-        Debug.Print "[Roll] ERREUR : PRODUCTION_WS non initialisï¿½"
+        Debug.Print "[Roll] ERREUR : PRODUCTION_WS non initialisé"
     End If
 End Sub

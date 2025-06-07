@@ -148,6 +148,8 @@ Public Function IsRollConformThickness(Optional ByRef motif As String = "") As B
     Dim NOKBloquant As Integer: NOKBloquant = 0
     Dim motifList As String: motifList = ""
     Dim ctrlMin As Double: ctrlMin = CDbl(ws.Range("ctrlMinThickness").Value)
+    Dim totalNOK As Integer: totalNOK = 0
+    Dim NOKSeuil As Integer: NOKSeuil = ws.Range("BH59").Value
 
     Dim isConform As Boolean: isConform = True
     For i = LBound(thickNames) To UBound(thickNames)
@@ -162,6 +164,7 @@ Public Function IsRollConformThickness(Optional ByRef motif As String = "") As B
             For Each addr In addresses
                 Set cell = ws.Range(addr)
                 If IsNumeric(cell.Value) And cell.Value <> "" And CDbl(cell.Value) < ctrlMin Then
+                    totalNOK = totalNOK + 1 ' Compte toutes les NOK, même rattrapées
                     rowOffset = cell.Row - rngActive.Rows(1).Row + 1
                     ' Chercher la cellule de rattrapage
                     Dim rattrapageCell As Range
@@ -173,37 +176,23 @@ Public Function IsRollConformThickness(Optional ByRef motif As String = "") As B
                         Set rattrapageCell = cell.Offset(1, 0)
                     End If
                     Dim isBloquant As Boolean: isBloquant = False
-                    If NameExists(CStr(secNames(i))) Then
-                        Dim foundInRattrapage As Boolean: foundInRattrapage = False
-                        Dim refStringR As String
-                        refStringR = ThisWorkbook.Names(secNames(i)).RefersTo
-                        refStringR = Replace(refStringR, "=", "")
-                        Dim addressesR As Variant
-                        addressesR = Split(refStringR, ",")
-                        Dim addrR As Variant
-                        For Each addrR In addressesR
-                            If rattrapageCell.Address = ws.Range(addrR).Address And rattrapageCell.Worksheet.Name = ws.Range(addrR).Worksheet.Name Then
-                                foundInRattrapage = True
-                                Exit For
-                            End If
-                        Next addrR
-                        If foundInRattrapage Then
-                            If IsNumeric(rattrapageCell.Value) And CDbl(rattrapageCell.Value) < ctrlMin Then
+                    ' Si pas de rattrapage ou rattrapage NOK, c'est bloquant
+                    If Not Intersect(cell, ws.Range(secNames(i)).Cells) Is Nothing Then
+                        ' C'est une cellule de rattrapage, ne rien faire
+                    ElseIf Not rattrapageCell Is Nothing Then
+                        If Not IsEmpty(rattrapageCell.Value) And IsNumeric(rattrapageCell.Value) Then
+                            If CDbl(rattrapageCell.Value) < ctrlMin Then
                                 isBloquant = True
-                                isConform = False ' Paire NOK trouvée
                             End If
                         Else
                             isBloquant = True
-                            isConform = False ' Paire NOK trouvée (pas de rattrapage)
                         End If
                     Else
                         isBloquant = True
-                        isConform = False ' Paire NOK trouvée (pas de plage de rattrapage)
                     End If
                     If isBloquant Then
                         NOKBloquant = NOKBloquant + 1
-                        If motifList <> "" Then motifList = motifList & " / "
-                        motifList = motifList & positions(i) & " " & rowOffset & "m NOK=" & Format(cell.Value, "0.00")
+                        motifList = motifList & "NOK bloquant à la ligne " & rowOffset & " | "
                     End If
                 End If
             Next addr
@@ -211,7 +200,13 @@ Public Function IsRollConformThickness(Optional ByRef motif As String = "") As B
             Debug.Print "[IsRollConformThickness]   -> Nom NON trouvé : " & thickNames(i)
         End If
     Next i
-    If NOKBloquant > 3 Then isConform = False
+    ' Nouveau contrôle : si totalNOK (même rattrapées) > seuil, NON CONFORME
+    If totalNOK > NOKSeuil Then
+        isConform = False
+        motifList = motifList & "Nombre total de NOK (" & totalNOK & ") supérieur au seuil autorisé (" & NOKSeuil & ") | "
+    End If
+    ' Si au moins une NOK bloquante (non rattrapée), NON CONFORME
+    If NOKBloquant > 0 Then isConform = False
     motif = motifList
     ws.Range("BK86").Value = isConform
     If wasProtected Then ws.Protect
@@ -544,6 +539,18 @@ Public Sub TestAreAllThicknessesPresent()
     Else
         MsgBox "Mesures d'épaisseur manquantes : " & missing, vbExclamation
     End If
+End Sub
+
+' Met à jour l'état de conformité du rouleau (défauts et épaisseurs)
+' @but : Met à jour en temps réel les statuts de conformité (défauts et épaisseurs) du rouleau selon la zone active
+' @param Aucun
+' @return Aucun
+' @pré : La zone active doit être correctement définie et PRODUCTION_WS initialisé
+Public Sub UpdateRollConformState()
+    Call IsRollConformDefects
+    Call saveDetectedDefects
+    Call IsRollConformThickness
+    Call saveDetectedThickness
 End Sub
 
 

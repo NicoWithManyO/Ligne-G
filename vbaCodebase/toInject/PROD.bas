@@ -15,8 +15,18 @@ Private Sub Worksheet_Change(ByVal Target As Range)
     wasProtected = Me.ProtectContents
     If wasProtected Then Me.Unprotect
 
+    ' Vérifie si la cellule modifiée est dans la zone active
+    Dim rngActive As Range
+    On Error Resume Next
+    Set rngActive = Me.Range(ThisWorkbook.Names("activeRollArea").RefersTo)
+    On Error GoTo 0
+    If Not rngActive Is Nothing Then
+        If Not Intersect(Target, rngActive) Is Nothing Then
+            Call UpdateRollConformState
+        End If
+    End If
+
     ' Vérifie si la cellule modifiée est une des cellules de machine
-    Debug.Print "[Worksheet_Change] Vérification machine prise poste : " & Range(RANGE_SHIFT_MACHINE_PRISE_POSTE).Address
     If Target.Address = Range(RANGE_SHIFT_MACHINE_PRISE_POSTE).Address Then
         Debug.Print "[Worksheet_Change] Machine prise poste modifiée"
         ' Mise à jour de la cellule de longueur prise de poste

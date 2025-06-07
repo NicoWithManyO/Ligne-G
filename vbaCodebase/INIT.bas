@@ -33,4 +33,7 @@ Public Sub initializeComponents()
 
     Call IsRollConformThickness
     Call saveDetectedThickness
+
+    ' Ajout : réécriture des métrages à chaque init
+    Call RewriteActiveRollLengths
 End Sub

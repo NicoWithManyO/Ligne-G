@@ -144,3 +144,32 @@ Public Sub SaveShiftFromButton()
     s.AppendToDataShifts Worksheets("dataShifts")
     ' MsgBox "Le shift a bien été ajouté à l'onglet dataShifts !", vbInformation
 End Sub 
+
+' Vide la zone inactive du rouleau
+' @but : Réinitialiser complétement la zone inactive du rouleau
+' @param Aucun
+' @return Aucun
+' @pré : La plage nommée inactiveRollArea doit exister et PRODUCTION_WS doit être initialisé
+Public Sub ClearInactiveRollArea()
+    Dim ws As Worksheet: Set ws = PRODUCTION_WS
+    If ws Is Nothing Then Exit Sub
+
+    Dim wasProtected As Boolean: wasProtected = ws.ProtectContents
+    If wasProtected Then ws.Unprotect
+
+    If NameExists("inactiveRollArea") Then
+        Dim refString As String
+        refString = ThisWorkbook.Names("inactiveRollArea").RefersTo
+        If refString <> "=FAUX" And refString <> "=FALSE" And refString <> "" Then
+            Dim rngInactive As Range
+            On Error Resume Next
+            Set rngInactive = ws.Range(refString)
+            On Error GoTo 0
+            If Not rngInactive Is Nothing Then
+                rngInactive.Value = ""
+            End If
+        End If
+    End If
+    call RewriteActiveRollLengths
+    If wasProtected Then ws.Protect
+End Sub 
