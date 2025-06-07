@@ -55,6 +55,14 @@ Public Mesure9 As String
 Public Mesure10 As String
 ' Gm2 : Masse linéaire
 Public Gm2 As Variant
+' MicG : Moyenne micronnaire côté gauche
+Public MicG As Variant
+' MicD : Moyenne micronnaire côté droit
+Public MicD As Variant
+' MasseSurfaciqueG : Moyenne masse surfacique côté gauche
+Public MasseSurfaciqueG As Variant
+' MasseSurfaciqueD : Moyenne masse surfacique côté droit
+Public MasseSurfaciqueD As Variant
 
 ' Structure pour définir une colonne
 Private Type ColumnConfig
@@ -64,10 +72,10 @@ End Type
 
 ' Configuration des colonnes
 Private Function GetColumnConfig() As Variant
-    Dim config(1 To 24) As Object
+    Dim config(1 To 28) As Object
     Dim i As Integer
 
-    For i = 1 To 24
+    For i = 1 To 28
         Set config(i) = CreateObject("Scripting.Dictionary")
     Next i
 
@@ -83,18 +91,22 @@ Private Function GetColumnConfig() As Variant
     config(10)("Header") = "g/m²": config(10)("PropertyName") = "Gm2"
     config(11)("Header") = "Date sauvegarde": config(11)("PropertyName") = "SaveDateTime"
     config(12)("Header") = "Défauts": config(12)("PropertyName") = "Defects"
-    config(13)("Header") = "Avg Left Thickness": config(13)("PropertyName") = "averageLeftThickness"
-    config(14)("Header") = "Avg Right Thickness": config(14)("PropertyName") = "averageRightThickness"
-    config(15)("Header") = "Mesure 1": config(15)("PropertyName") = "Mesure1"
-    config(16)("Header") = "Mesure 2": config(16)("PropertyName") = "Mesure2"
-    config(17)("Header") = "Mesure 3": config(17)("PropertyName") = "Mesure3"
-    config(18)("Header") = "Mesure 4": config(18)("PropertyName") = "Mesure4"
-    config(19)("Header") = "Mesure 5": config(19)("PropertyName") = "Mesure5"
-    config(20)("Header") = "Mesure 6": config(20)("PropertyName") = "Mesure6"
-    config(21)("Header") = "Mesure 7": config(21)("PropertyName") = "Mesure7"
-    config(22)("Header") = "Mesure 8": config(22)("PropertyName") = "Mesure8"
-    config(23)("Header") = "Mesure 9": config(23)("PropertyName") = "Mesure9"
-    config(24)("Header") = "Mesure 10": config(24)("PropertyName") = "Mesure10"
+    config(13)("Header") = "MicG": config(13)("PropertyName") = "MicG"
+    config(14)("Header") = "MicD": config(14)("PropertyName") = "MicD"
+    config(15)("Header") = "Masse Surf G": config(15)("PropertyName") = "MasseSurfaciqueG"
+    config(16)("Header") = "Masse Surf D": config(16)("PropertyName") = "MasseSurfaciqueD"
+    config(17)("Header") = "Avg Left Thickness": config(17)("PropertyName") = "averageLeftThickness"
+    config(18)("Header") = "Avg Right Thickness": config(18)("PropertyName") = "averageRightThickness"
+    config(19)("Header") = "Mesure 1": config(19)("PropertyName") = "Mesure1"
+    config(20)("Header") = "Mesure 2": config(20)("PropertyName") = "Mesure2"
+    config(21)("Header") = "Mesure 3": config(21)("PropertyName") = "Mesure3"
+    config(22)("Header") = "Mesure 4": config(22)("PropertyName") = "Mesure4"
+    config(23)("Header") = "Mesure 5": config(23)("PropertyName") = "Mesure5"
+    config(24)("Header") = "Mesure 6": config(24)("PropertyName") = "Mesure6"
+    config(25)("Header") = "Mesure 7": config(25)("PropertyName") = "Mesure7"
+    config(26)("Header") = "Mesure 8": config(26)("PropertyName") = "Mesure8"
+    config(27)("Header") = "Mesure 9": config(27)("PropertyName") = "Mesure9"
+    config(28)("Header") = "Mesure 10": config(28)("PropertyName") = "Mesure10"
 
     GetColumnConfig = config
 End Function

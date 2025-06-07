@@ -95,7 +95,7 @@ Public Sub SaveToSheet(ws As Worksheet)
             commentRange.Cells(i + 1, 1).Value = commentLines(i)
         End If
     Next i
-    
+    Call ExportGlobalsCtrlToSheet
     ' ws.Range(RANGE_SHIFT_SAVE_DATE_TIME).Value = SaveDateTime
 End Sub
 
@@ -201,6 +201,6 @@ Public Sub AppendToDataShifts(ws As Worksheet)
     End If
     ws.Cells(nextRow, 10).Value = Commentaires
     ws.Cells(nextRow, 11).Value = Now ' Ajout de la date/heure de sauvegarde
-    
+    Call ExportGlobalsCtrlToSheet
     MsgBox "Le poste a été enregistré avec succès.", vbInformation, "Enregistrement réussi"
 End Sub

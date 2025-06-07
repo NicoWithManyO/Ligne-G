@@ -10,6 +10,11 @@ Public Sub saveRollFromProd()
         Exit Sub
     End If
     
+    ' Déprotéger la feuille au début si besoin
+    Dim wasProtected As Boolean
+    wasProtected = PRODUCTION_WS.ProtectContents
+    If wasProtected Then PRODUCTION_WS.Unprotect
+    
     ' Création d'une instance de Roll
     Dim myRoll As New Roll
     
@@ -19,7 +24,7 @@ Public Sub saveRollFromProd()
     ' Vérifier que BH80, BH81 et BH82 sont renseignées
     If PRODUCTION_WS.Range("BH80").Value = "" Or PRODUCTION_WS.Range("BH81").Value = "" Or PRODUCTION_WS.Range(RANGE_REAL_LENGTH).Value = "" Then
         MsgBox "Merci de renseigner les champs : Masse du tube, Masse totale et Longueur avant de sauvegarder.", vbExclamation
-        Exit Sub
+        GoTo SafeExit
     End If
     
     ' Vérifier que toutes les épaisseurs sont présentes
@@ -31,7 +36,7 @@ Public Sub saveRollFromProd()
     End If
     If Not AreAllThicknessesPresent(missingMeasurements) Then
         MsgBox "Merci de renseigner toutes les épaisseurs requises pour un rouleau de " & rollLength & "m avant de sauvegarder :" & vbCrLf & missingMeasurements, vbExclamation
-        Exit Sub
+        GoTo SafeExit
     End If
     
     ' Vérifier que les infos de poste (shift) sont renseignées
@@ -45,7 +50,7 @@ Public Sub saveRollFromProd()
     If PRODUCTION_WS.Range("shiftDuree").Value = "" Then missingShiftFields = missingShiftFields & "- Durée du poste" & vbCrLf
     If missingShiftFields <> "" Then
         MsgBox "Merci de renseigner les informations de poste suivantes avant de sauvegarder :" & vbCrLf & missingShiftFields, vbExclamation
-        Exit Sub
+        GoTo SafeExit
     End If
     
     ' Vérifier si la longueur du rouleau est différente de la longueur cible
@@ -60,14 +65,14 @@ Public Sub saveRollFromProd()
             MsgBox "La longueur du rouleau (" & myRoll.Length & "m) est différente de la longueur cible (" & cible & ")." & vbCrLf & _
                    "La sauvegarde est refusée car le mode permissif n'est pas activé.", vbExclamation, "Différence de longueur"
             Debug.Print "[saveRollFromProd] Export refusé : longueur différente et mode permissif désactivé."
-            Exit Sub
+            GoTo SafeExit
         Else
             Dim lengthDiffMsg As String
             lengthDiffMsg = "La longueur du rouleau (" & myRoll.Length & "m) est différente de la longueur cible (" & cible & ")." & vbCrLf & _
                             "Voulez-vous tout de même sauvegarder ce rouleau ?"
             If MsgBox(lengthDiffMsg, vbYesNo + vbQuestion, "Différence de longueur") <> vbYes Then
                 Debug.Print "[saveRollFromProd] Export annulé par l'utilisateur (différence de longueur)."
-                Exit Sub
+                GoTo SafeExit
             End If
         End If
     End If
@@ -80,7 +85,7 @@ Public Sub saveRollFromProd()
                  "Statut : " & myRoll.Status
     If MsgBox(confirmMsg, vbYesNo + vbQuestion, "Confirmation export rouleau") <> vbYes Then
         Debug.Print "[saveRollFromProd] Export annulé par l'utilisateur."
-        Exit Sub
+        GoTo SafeExit
     End If
     
     ' Vérifier si l'ID existe déjà
@@ -93,9 +98,50 @@ Public Sub saveRollFromProd()
     For i = 2 To lastRow ' Commencer à 2 pour ignorer l'en-tête
         If wsDataRolls.Cells(i, 1).Value = myRoll.ID Then
             MsgBox "Un rouleau avec l'ID " & myRoll.ID & " existe déjà.", vbExclamation
-            Exit Sub
+            GoTo SafeExit
         End If
     Next i
+    
+    ' --- Gestion conditionnelle des contrôles globaux dans le Roll ---
+    Dim aq59Val As Variant
+    aq59Val = PRODUCTION_WS.Range("AQ59").Value
+    If UCase(Trim(aq59Val)) <> "OK" Then
+        ' Calcul des moyennes MicG et MicD
+        Dim micG1 As Variant, micG2 As Variant, micG3 As Variant
+        Dim micD1 As Variant, micD2 As Variant, micD3 As Variant
+        micG1 = ThisWorkbook.Names("micG1").RefersToRange.Value
+        micG2 = ThisWorkbook.Names("micG2").RefersToRange.Value
+        micG3 = ThisWorkbook.Names("micG3").RefersToRange.Value
+        micD1 = ThisWorkbook.Names("micD1").RefersToRange.Value
+        micD2 = ThisWorkbook.Names("micD2").RefersToRange.Value
+        micD3 = ThisWorkbook.Names("micD3").RefersToRange.Value
+        
+        If IsNumeric(micG1) And IsNumeric(micG2) And IsNumeric(micG3) Then
+            myRoll.MicG = Round((CDbl(micG1) + CDbl(micG2) + CDbl(micG3)) / 3, 2)
+        Else
+            myRoll.MicG = ""
+        End If
+        If IsNumeric(micD1) And IsNumeric(micD2) And IsNumeric(micD3) Then
+            myRoll.MicD = Round((CDbl(micD1) + CDbl(micD2) + CDbl(micD3)) / 3, 2)
+        Else
+            myRoll.MicD = ""
+        End If
+        ' Masse surfacique G et D
+        Dim masseGG As Variant, masseDD As Variant
+        masseGG = ThisWorkbook.Names("masseSurfaciqueGG").RefersToRange.Value
+        masseDD = ThisWorkbook.Names("masseSurfaciqueDD").RefersToRange.Value
+        If IsNumeric(masseGG) Then
+            myRoll.MasseSurfaciqueG = masseGG
+        Else
+            myRoll.MasseSurfaciqueG = ""
+        End If
+        If IsNumeric(masseDD) Then
+            myRoll.MasseSurfaciqueD = masseDD
+        Else
+            myRoll.MasseSurfaciqueD = ""
+        End If
+    End If
+    ' --- Fin gestion conditionnelle des contrôles globaux ---
     
     ' Sauvegarde dans dataRolls
     myRoll.SaveToSheet wsDataRolls
@@ -110,14 +156,14 @@ Public Sub saveRollFromProd()
         Debug.Print "[saveRollFromProd] Numéro de roll actuel : " & currentRollNumber
         Call SetRollNumber(PRODUCTION_WS, currentRollNumber + 1)
         Debug.Print "[saveRollFromProd] Numéro de roll incrémenté : " & (currentRollNumber + 1)
+        ' Mettre AQ59 à OK uniquement si conforme
+        If PRODUCTION_WS.ProtectContents Then PRODUCTION_WS.Unprotect
+        PRODUCTION_WS.Range("AQ59").Value = "OK"
     Else
         Debug.Print "[saveRollFromProd] Status non conforme : " & myRoll.Status & " - Pas d'incrémentation"
     End If
 
     ' Gestion des poids
-    Dim wasProtected As Boolean: wasProtected = PRODUCTION_WS.ProtectContents
-    If wasProtected Then PRODUCTION_WS.Unprotect
-
     ' Copier BK82 vers BH80 si BK82 a une valeur, sinon vider BH80
     If Not IsEmpty(PRODUCTION_WS.Range("BK82").Value) And PRODUCTION_WS.Range("BK82").Value <> "" Then
         PRODUCTION_WS.Range("BH80").Value = PRODUCTION_WS.Range("BK82").Value
@@ -129,76 +175,17 @@ Public Sub saveRollFromProd()
     ' Vider BH81
     PRODUCTION_WS.Range("BH81").Value = ""
 
-    If wasProtected Then PRODUCTION_WS.Protect
-
     ' Vider la zone active et réécrire les mètres
     Call ClearAllActiveRollArea
-
+    Call ExportGlobalsCtrlToSheet
     ' Message de confirmation
     MsgBox "Le rouleau " & myRoll.ID & " a bien été sauvegardé : " & myRoll.Status, vbInformation
+
+SafeExit:
+    ' Reprotéger la feuille si besoin
+    If wasProtected Then PRODUCTION_WS.Protect
 End Sub
 
-' Sauvegarde les données du rouleau dans un fichier texte
-' @but : Sauvegarde toutes les données du rouleau dans un fichier texte formaté
-' @param filePath : Chemin du fichier où sauvegarder les données
-' @return : aucun
-Public Sub SaveRollToFile(filePath As String)
-    If PRODUCTION_WS Is Nothing Then
-        Debug.Print "[SaveRollToFile] ERREUR : PRODUCTION_WS non initialisé"
-        Exit Sub
-    End If
-    
-    ' Création d'une instance de Roll
-    Dim myRoll As New Roll
-    
-    ' Chargement des données depuis PROD
-    myRoll.LoadFromSheet PRODUCTION_WS
-    
-    ' Création du fichier
-    Dim fso As Object: Set fso = CreateObject("Scripting.FileSystemObject")
-    Dim file As Object: Set file = fso.CreateTextFile(filePath, True)
-    
-    ' Écriture des données de base
-    file.WriteLine "=== Données du rouleau ==="
-    file.WriteLine "ID: " & myRoll.ID
-    file.WriteLine "OF: " & myRoll.OF
-    file.WriteLine "Numéro: " & myRoll.Number
-    file.WriteLine "Poste: " & myRoll.FabricationShift
-    file.WriteLine "Opérateur: " & myRoll.FabricationOperator
-    file.WriteLine "OF en cours: " & myRoll.OFInProgress
-    file.WriteLine "Longueur: " & myRoll.Length
-    file.WriteLine "Poids tube: " & myRoll.PipeWeight
-    file.WriteLine "Poids total: " & myRoll.TotalWeight
-    file.WriteLine "Poids: " & myRoll.Weight
-    file.WriteLine "Statut: " & myRoll.Status
-    file.WriteLine "Défauts: " & myRoll.Defects
-    
-    ' Écriture des épaisseurs
-    file.WriteLine ""
-    file.WriteLine "=== Épaisseurs ==="
-    
-    ' Parcourir toutes les épaisseurs par position
-    Dim positions As Variant: positions = Array("Gauche", "Droite")
-    Dim pos As Variant
-    
-    For Each pos In positions
-        file.WriteLine pos & ":"
-        Dim thickness As Object
-        For Each thickness In myRoll.Thicknesses(pos)
-            Dim line As String
-            line = "  " & thickness("rowOffset") & "m: " & Format(thickness("value"), "0.00")
-            If thickness.Exists("rattrapageValue") Then
-                line = line & " | " & Format(thickness("rattrapageValue"), "0.00")
-            End If
-            file.WriteLine line
-        Next thickness
-    Next pos
-    
-    ' Fermeture du fichier
-    file.Close
-    
-    Debug.Print "[SaveRollToFile] Rouleau sauvegardé dans : " & filePath
-End Sub
 
 ' Lit les données de la feuille de production et sauvegarde le rouleau
 ' @but : Lit les données du rouleau depuis la feuille de production et les sauvegarde

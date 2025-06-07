@@ -69,7 +69,14 @@ End Sub
 
 Public Sub SetLOI_OK()
     ' Met la valeur OK dans la cellule LOI (nommée) pour valider le contrôle
-    ThisWorkbook.Names("loi").RefersToRange.Value = "OK"
+    Dim rng As Range
+    Set rng = ThisWorkbook.Names("loi").RefersToRange
+    If UCase(Trim(rng.Value)) = "OK" Then
+        If MsgBox("L'échantillon LOI a déjà été donné, êtes-vous sûr ?", vbYesNo + vbQuestion) <> vbYes Then
+            Exit Sub
+        End If
+    End If
+    rng.Value = "OK"
 End Sub
 
 Public Sub ExportGlobalsCtrlToSheet()
@@ -82,10 +89,10 @@ Public Sub ExportGlobalsCtrlToSheet()
         Exit Sub
     End If
 
-    ' Vérifier si les contrôles ont déjà été sauvegardés (plage fusionnée)
-    ' On teste la première cellule de la plage fusionnée pour éviter l'incompatibilité de type
+    Vérifier si les contrôles ont déjà été sauvegardés (plage fusionnée)
+    On teste la première cellule de la plage fusionnée pour éviter l'incompatibilité de type
     If PRODUCTION_WS.Range("AR60:AV60").Cells(1, 1).Value = "Contrôles Sauvegardés" Then
-        MsgBox "Ces contrôles ont déjà été sauvegardés", vbExclamation
+        ' MsgBox "Ces contrôles ont déjà été sauvegardés", vbExclamation
         Exit Sub
     End If
 
