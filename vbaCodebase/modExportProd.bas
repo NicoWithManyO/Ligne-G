@@ -103,9 +103,9 @@ Public Sub saveRollFromProd()
     Next i
     
     ' --- Gestion conditionnelle des contrôles globaux dans le Roll ---
-    Dim aq59Val As Variant
-    aq59Val = PRODUCTION_WS.Range("AQ59").Value
-    If UCase(Trim(aq59Val)) <> "OK" Then
+    Dim at59Val As Variant
+    at59Val = PRODUCTION_WS.Range("AT59").Value
+    If UCase(Trim(at59Val)) = "" Then
         ' Calcul des moyennes MicG et MicD
         Dim micG1 As Variant, micG2 As Variant, micG3 As Variant
         Dim micD1 As Variant, micD2 As Variant, micD3 As Variant
@@ -140,6 +140,9 @@ Public Sub saveRollFromProd()
         Else
             myRoll.MasseSurfaciqueD = ""
         End If
+        ' Ensimage
+        myRoll.Ensimage = PRODUCTION_WS.Range("bain").Value
+        PRODUCTION_WS.Range("AT59").Value = myRoll.ID
     End If
     ' --- Fin gestion conditionnelle des contrôles globaux ---
     
@@ -157,8 +160,8 @@ Public Sub saveRollFromProd()
         Call SetRollNumber(PRODUCTION_WS, currentRollNumber + 1)
         Debug.Print "[saveRollFromProd] Numéro de roll incrémenté : " & (currentRollNumber + 1)
         ' Mettre AQ59 à OK uniquement si conforme
-        If PRODUCTION_WS.ProtectContents Then PRODUCTION_WS.Unprotect
-        PRODUCTION_WS.Range("AQ59").Value = "OK"
+        ' If PRODUCTION_WS.ProtectContents Then PRODUCTION_WS.Unprotect
+        ' PRODUCTION_WS.Range("AQ59").Value = "OK"
     Else
         Debug.Print "[saveRollFromProd] Status non conforme : " & myRoll.Status & " - Pas d'incrémentation"
     End If

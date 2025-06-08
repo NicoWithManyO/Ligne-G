@@ -63,6 +63,8 @@ Public MicD As Variant
 Public MasseSurfaciqueG As Variant
 ' MasseSurfaciqueD : Moyenne masse surfacique côté droit
 Public MasseSurfaciqueD As Variant
+' Ensimage : Ensimage du rouleau
+Public Ensimage As Variant
 
 ' Structure pour définir une colonne
 Private Type ColumnConfig
@@ -95,18 +97,18 @@ Private Function GetColumnConfig() As Variant
     config(14)("Header") = "MicD": config(14)("PropertyName") = "MicD"
     config(15)("Header") = "Masse Surf G": config(15)("PropertyName") = "MasseSurfaciqueG"
     config(16)("Header") = "Masse Surf D": config(16)("PropertyName") = "MasseSurfaciqueD"
-    config(17)("Header") = "Avg Left Thickness": config(17)("PropertyName") = "averageLeftThickness"
-    config(18)("Header") = "Avg Right Thickness": config(18)("PropertyName") = "averageRightThickness"
-    config(19)("Header") = "Mesure 1": config(19)("PropertyName") = "Mesure1"
-    config(20)("Header") = "Mesure 2": config(20)("PropertyName") = "Mesure2"
-    config(21)("Header") = "Mesure 3": config(21)("PropertyName") = "Mesure3"
-    config(22)("Header") = "Mesure 4": config(22)("PropertyName") = "Mesure4"
-    config(23)("Header") = "Mesure 5": config(23)("PropertyName") = "Mesure5"
-    config(24)("Header") = "Mesure 6": config(24)("PropertyName") = "Mesure6"
-    config(25)("Header") = "Mesure 7": config(25)("PropertyName") = "Mesure7"
-    config(26)("Header") = "Mesure 8": config(26)("PropertyName") = "Mesure8"
-    config(27)("Header") = "Mesure 9": config(27)("PropertyName") = "Mesure9"
-    config(28)("Header") = "Mesure 10": config(28)("PropertyName") = "Mesure10"
+    config(17)("Header") = "Ensimage": config(17)("PropertyName") = "Ensimage"
+    config(18)("Header") = "Avg Left Thickness": config(18)("PropertyName") = "averageLeftThickness"
+    config(19)("Header") = "Avg Right Thickness": config(19)("PropertyName") = "averageRightThickness"
+    config(20)("Header") = "Mesure 1": config(20)("PropertyName") = "Mesure1"
+    config(21)("Header") = "Mesure 2": config(21)("PropertyName") = "Mesure2"
+    config(22)("Header") = "Mesure 3": config(22)("PropertyName") = "Mesure3"
+    config(23)("Header") = "Mesure 4": config(23)("PropertyName") = "Mesure4"
+    config(24)("Header") = "Mesure 5": config(24)("PropertyName") = "Mesure5"
+    config(25)("Header") = "Mesure 6": config(25)("PropertyName") = "Mesure6"
+    config(26)("Header") = "Mesure 7": config(26)("PropertyName") = "Mesure7"
+    config(27)("Header") = "Mesure 8": config(27)("PropertyName") = "Mesure8"
+    config(28)("Header") = "Mesure 9": config(28)("PropertyName") = "Mesure9"
 
     GetColumnConfig = config
 End Function

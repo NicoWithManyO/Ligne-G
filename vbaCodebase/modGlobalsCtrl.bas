@@ -184,8 +184,8 @@ Public Sub SetGlobalsCtrlSaved()
     Set ws = ThisWorkbook.Sheets("PROD")
     Dim wasProtected As Boolean: wasProtected = ws.ProtectContents
     If wasProtected Then ws.Unprotect
-    ws.Range("AR60:AV60").Value = "Contrôles Sauvegardés"
-    ws.Range("AU59").Value = ws.Range("AU59").Value + 1
+    ' ws.Range("AR60:AV60").Value = "Contrôles Sauvegardés"
+    ' ws.Range("AU59").Value = ws.Range("AU59").Value + 1
     ' ws.Range("AR60:AV60").Interior.Color = RGB(0, 176, 80) ' Vert Excel
     ' ws.Range("AK60:BC60").Interior.Color = RGB(0, 176, 80)
     If wasProtected Then ws.Protect
@@ -196,7 +196,7 @@ Public Sub ResetGlobalsCtrlSaved()
     Set ws = ThisWorkbook.Sheets("PROD")
     Dim wasProtected As Boolean: wasProtected = ws.ProtectContents
     If wasProtected Then ws.Unprotect 
-    ws.Range("AR60:AV60").Value = ""
+    ws.Range("AT59").Value = ""
     ' ws.Range("AR60:AV60").Interior.Color = RGB(77, 147, 217) ' Bleu #4D93D9
     ' ws.Range("AK60:BC60").Interior.Color = RGB(77, 147, 217)
     If wasProtected Then ws.Protect
