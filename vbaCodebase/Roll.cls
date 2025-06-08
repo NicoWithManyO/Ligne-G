@@ -194,7 +194,7 @@ Private Function GetMesureString(thicknesses As Object, mesureIndex As Integer) 
         If t("rowOffset") = offset Or t("rowOffset") = offset + 1 Or t("rowOffset") = offset + 2 Then
             gCount = gCount + 1
             gVals(gCount) = Format(t("value"), "0.00")
-            If t.Exists("rattrapageValue") Then
+            If t.Exists("rattrapageValue") And Not IsEmpty(t("rattrapageValue")) And t("rattrapageValue") <> "" Then
                 gVals(gCount) = gVals(gCount) & "/" & Format(t("rattrapageValue"), "0.00")
             End If
             If gCount = 3 Then Exit For
@@ -204,7 +204,7 @@ Private Function GetMesureString(thicknesses As Object, mesureIndex As Integer) 
         If t("rowOffset") = offset Or t("rowOffset") = offset + 1 Or t("rowOffset") = offset + 2 Then
             dCount = dCount + 1
             dVals(dCount) = Format(t("value"), "0.00")
-            If t.Exists("rattrapageValue") Then
+            If t.Exists("rattrapageValue") And Not IsEmpty(t("rattrapageValue")) And t("rattrapageValue") <> "" Then
                 dVals(dCount) = dVals(dCount) & "/" & Format(t("rattrapageValue"), "0.00")
             End If
             If dCount = 3 Then Exit For

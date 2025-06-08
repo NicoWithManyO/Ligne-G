@@ -89,13 +89,6 @@ Public Sub ExportGlobalsCtrlToSheet()
         Exit Sub
     End If
 
-    ' Vérifier si les contrôles ont déjà été sauvegardés (plage fusionnée)
-    ' On teste la première cellule de la plage fusionnée pour éviter l'incompatibilité de type
-    If PRODUCTION_WS.Range("AR60:AV60").Cells(1, 1).Value = "Contrôles Sauvegardés" Then
-        ' MsgBox "Ces contrôles ont déjà été sauvegardés", vbExclamation
-        Exit Sub
-    End If
-
     Dim lastRow As Long
     lastRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
     Dim isEmpty As Boolean: isEmpty = (ws.Cells(1, 1).Value = "")
