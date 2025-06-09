@@ -194,3 +194,36 @@ Public Sub ResetGlobalsCtrlSaved()
     ' ws.Range("AK60:BC60").Interior.Color = RGB(77, 147, 217)
     If wasProtected Then ws.Protect
 End Sub
+
+Public Function AreAllGlobalsCtrlFilled(Optional showMsg As Boolean = False) As Boolean
+    Dim missing As String
+    missing = ""
+    Dim i As Integer, val As Variant
+    ' Micronnaire
+    For i = 1 To 3
+        val = ThisWorkbook.Names("micG" & i).RefersToRange.Value
+        If val = "" Or Not IsNumeric(val) Then missing = missing & "micG" & i & " | "
+        val = ThisWorkbook.Names("micD" & i).RefersToRange.Value
+        If val = "" Or Not IsNumeric(val) Then missing = missing & "micD" & i & " | "
+    Next i
+    ' Masse surfacique
+    Dim masseNames As Variant: masseNames = Array("masseSurfaciqueGG", "masseSurfaciqueGC", "masseSurfaciqueDC", "masseSurfaciqueDD")
+    Dim j As Integer
+    For j = 0 To 3
+        val = ThisWorkbook.Names(masseNames(j)).RefersToRange.Value
+        If val = "" Or Not IsNumeric(val) Then missing = missing & masseNames(j) & " | "
+    Next j
+    ' Bain
+    val = ThisWorkbook.Names("bain").RefersToRange.Value
+    If val = "" Or Not IsNumeric(val) Then missing = missing & "bain | "
+    ' LOI
+    val = ThisWorkbook.Names("loi").RefersToRange.Value
+    If val <> "OK" Then missing = missing & "loi (doit être OK) | "
+    ' Résultat
+    If missing <> "" Then
+        If showMsg Then MsgBox "Des contrôles sont manquants, vous ne pourrez pas sauvegarder le poste sans eux : " & missing, vbExclamation
+        AreAllGlobalsCtrlFilled = False
+    Else
+        AreAllGlobalsCtrlFilled = True
+    End If
+End Function

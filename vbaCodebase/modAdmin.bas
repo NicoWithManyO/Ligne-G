@@ -35,6 +35,11 @@ Public Sub FillThicknessCellsRandom()
             End If
         End If
     Next i
+    ' Remplir BH80 avec 900 +/- 12 (entier)
+    ws.Range("BH80").Value = Round(900 + (Rnd() * 24 - 12), 0)
+    ws.Range("BK82").Value = Round(900 + (Rnd() * 24 - 12), 0)
+    ' Remplir BH81 avec 3500 +/- 100 (entier)
+    ws.Range("BH81").Value = Round(3500 + (Rnd() * 100 - 50), 0)
     Call FormatRollLayout
 End Sub
 

@@ -102,6 +102,9 @@ Public Sub saveRollFromProd()
         End If
     Next i
     
+    ' Vérification des contrôles globaux (avertissement uniquement)
+    Call AreAllGlobalsCtrlFilled(True)
+    
     ' --- Gestion conditionnelle des contrôles globaux dans le Roll ---
     Dim at59Val As Variant
     at59Val = PRODUCTION_WS.Range("AT59").Value

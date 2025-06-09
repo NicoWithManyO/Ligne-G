@@ -184,6 +184,11 @@ Public Sub AppendToDataShifts(ws As Worksheet)
         Exit Sub
     End If
     
+    ' Vérification des contrôles globaux obligatoires
+    If Not AreAllGlobalsCtrlFilled(True) Then
+        Exit Sub
+    End If
+    
     ' Demande confirmation avant de sauvegarder
     If MsgBox("Voulez-vous enregistrer le poste de " & Operateur & " du " & DatePoste & " (" & Vaccation & ") ?", vbQuestion + vbYesNo, "Confirmation") = vbNo Then
         Exit Sub
