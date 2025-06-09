@@ -28,6 +28,22 @@ Public LgEnrouleeFinPoste As Variant
 Public Commentaires As Variant
 ' SaveDateTime : Date et heure de la sauvegarde
 Public SaveDateTime As Variant
+' Contrôles globaux
+Public ctrlMoyenneMicG As Variant
+Public ctrlMoyenneMicD As Variant
+Public ctrlMicG1 As Variant
+Public ctrlMicG2 As Variant
+Public ctrlMicG3 As Variant
+Public ctrlMicD1 As Variant
+Public ctrlMicD2 As Variant
+Public ctrlMicD3 As Variant
+Public ctrlMasseSurfaciqueGG As Variant
+Public ctrlMasseSurfaciqueGC As Variant
+Public ctrlMasseSurfaciqueDC As Variant
+Public ctrlMasseSurfaciqueDD As Variant
+Public ctrlBain As Variant
+Public ctrlLoi As Variant
+Public ctrlSavedOnRoll As Variant
 
 ' Charge les données du shift depuis la feuille
 ' @but : Initialise les propriétés du shift avec les valeurs de la feuille
@@ -201,8 +217,93 @@ Public Sub AppendToDataShifts(ws As Worksheet)
     End If
     ws.Cells(nextRow, 10).Value = Commentaires
     ws.Cells(nextRow, 11).Value = Now ' Ajout de la date/heure de sauvegarde
-    Call ExportGlobalsCtrlToSheet
+
+    ' Remplir les contrôles globaux
+    ctrlMoyenneMicG = ""
+    ctrlMoyenneMicD = ""
+    Dim micG1 As Variant, micG2 As Variant, micG3 As Variant
+    Dim micD1 As Variant, micD2 As Variant, micD3 As Variant
+    micG1 = ThisWorkbook.Names("micG1").RefersToRange.Value
+    micG2 = ThisWorkbook.Names("micG2").RefersToRange.Value
+    micG3 = ThisWorkbook.Names("micG3").RefersToRange.Value
+    micD1 = ThisWorkbook.Names("micD1").RefersToRange.Value
+    micD2 = ThisWorkbook.Names("micD2").RefersToRange.Value
+    micD3 = ThisWorkbook.Names("micD3").RefersToRange.Value
+    If IsNumeric(micG1) And IsNumeric(micG2) And IsNumeric(micG3) Then
+        ctrlMoyenneMicG = Round((CDbl(micG1) + CDbl(micG2) + CDbl(micG3)) / 3, 2)
+    End If
+    If IsNumeric(micD1) And IsNumeric(micD2) And IsNumeric(micD3) Then
+        ctrlMoyenneMicD = Round((CDbl(micD1) + CDbl(micD2) + CDbl(micD3)) / 3, 2)
+    End If
+    ctrlMicG1 = micG1
+    ctrlMicG2 = micG2
+    ctrlMicG3 = micG3
+    ctrlMicD1 = micD1
+    ctrlMicD2 = micD2
+    ctrlMicD3 = micD3
+    ctrlMasseSurfaciqueGG = ThisWorkbook.Names("masseSurfaciqueGG").RefersToRange.Value
+    ctrlMasseSurfaciqueGC = ThisWorkbook.Names("masseSurfaciqueGC").RefersToRange.Value
+    ctrlMasseSurfaciqueDC = ThisWorkbook.Names("masseSurfaciqueDC").RefersToRange.Value
+    ctrlMasseSurfaciqueDD = ThisWorkbook.Names("masseSurfaciqueDD").RefersToRange.Value
+    ctrlBain = ThisWorkbook.Names("bain").RefersToRange.Value
+    ctrlLoi = ThisWorkbook.Names("loi").RefersToRange.Value
+    Dim at59Val As Variant
+    at59Val = PRODUCTION_WS.Range("AT59").Value
+    If at59Val = "" Or IsEmpty(at59Val) Then
+        ctrlSavedOnRoll = ""
+    Else
+        ctrlSavedOnRoll = at59Val
+    End If
+
+    ' Déclaration unique de colStart
+    Dim colStart As Long
+    ' Gestion automatique des en-têtes pour les colonnes ctrl*
+    If ws.Cells(1, 1).Value = "" Then
+        ws.Cells(1, 1).Value = "ID"
+        ws.Cells(1, 2).Value = "DatePoste"
+        ws.Cells(1, 3).Value = "Operateur"
+        ws.Cells(1, 4).Value = "Vaccation"
+        ws.Cells(1, 5).Value = "Duree"
+        ws.Cells(1, 6).Value = "MachinePrisePoste"
+        ws.Cells(1, 7).Value = "LgEnrouleePrisePoste"
+        ws.Cells(1, 8).Value = "MachineFinPoste"
+        ws.Cells(1, 9).Value = "LgEnrouleeFinPoste"
+        ws.Cells(1, 10).Value = "Commentaires"
+        ws.Cells(1, 11).Value = "SaveDateTime"
+        colStart = 12
+        ws.Cells(1, colStart).Value = "ctrlMoyenneMicG"
+        ws.Cells(1, colStart + 1).Value = "ctrlMoyenneMicD"
+        ws.Cells(1, colStart + 2).Value = "ctrlMicG1"
+        ws.Cells(1, colStart + 3).Value = "ctrlMicG2"
+        ws.Cells(1, colStart + 4).Value = "ctrlMicG3"
+        ws.Cells(1, colStart + 5).Value = "ctrlMicD1"
+        ws.Cells(1, colStart + 6).Value = "ctrlMicD2"
+        ws.Cells(1, colStart + 7).Value = "ctrlMicD3"
+        ws.Cells(1, colStart + 8).Value = "ctrlMasseSurfaciqueGG"
+        ws.Cells(1, colStart + 9).Value = "ctrlMasseSurfaciqueGC"
+        ws.Cells(1, colStart + 10).Value = "ctrlMasseSurfaciqueDC"
+        ws.Cells(1, colStart + 11).Value = "ctrlMasseSurfaciqueDD"
+        ws.Cells(1, colStart + 12).Value = "ctrlBain"
+        ws.Cells(1, colStart + 13).Value = "ctrlLoi"
+        ws.Cells(1, colStart + 14).Value = "ctrlSavedOnRoll"
+    End If
+    ' Export dans la feuille à la fin de la ligne
+    colStart = ws.Cells(nextRow, ws.Columns.Count).End(xlToLeft).Column + 1
+    ws.Cells(nextRow, colStart).Value = ctrlMoyenneMicG
+    ws.Cells(nextRow, colStart + 1).Value = ctrlMoyenneMicD
+    ws.Cells(nextRow, colStart + 2).Value = ctrlMicG1
+    ws.Cells(nextRow, colStart + 3).Value = ctrlMicG2
+    ws.Cells(nextRow, colStart + 4).Value = ctrlMicG3
+    ws.Cells(nextRow, colStart + 5).Value = ctrlMicD1
+    ws.Cells(nextRow, colStart + 6).Value = ctrlMicD2
+    ws.Cells(nextRow, colStart + 7).Value = ctrlMicD3
+    ws.Cells(nextRow, colStart + 8).Value = ctrlMasseSurfaciqueGG
+    ws.Cells(nextRow, colStart + 9).Value = ctrlMasseSurfaciqueGC
+    ws.Cells(nextRow, colStart + 10).Value = ctrlMasseSurfaciqueDC
+    ws.Cells(nextRow, colStart + 11).Value = ctrlMasseSurfaciqueDD
+    ws.Cells(nextRow, colStart + 12).Value = ctrlBain
+    ws.Cells(nextRow, colStart + 13).Value = ctrlLoi
+    ws.Cells(nextRow, colStart + 14).Value = ctrlSavedOnRoll
     Call ClearGlobalsCtrlValues
-    ws.Range("AU59").Value = 0
     MsgBox "Le poste a été enregistré avec succès.", vbInformation, "Enregistrement réussi"
 End Sub

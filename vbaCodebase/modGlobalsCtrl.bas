@@ -169,7 +169,7 @@ Public Sub ClearGlobalsCtrlValues()
     For i = LBound(ctrlNames) To UBound(ctrlNames)
         ThisWorkbook.Names(ctrlNames(i)).RefersToRange.Value = ""
     Next i
-    Call ResetGlobalsCtrlSaved
+    Call SetGlobalsCtrlSaved
 End Sub
 
 Public Sub SetGlobalsCtrlSaved()

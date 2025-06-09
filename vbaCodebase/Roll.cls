@@ -65,6 +65,25 @@ Public MasseSurfaciqueG As Variant
 Public MasseSurfaciqueD As Variant
 ' Ensimage : Ensimage du rouleau
 Public Ensimage As Variant
+' Contrôles globaux
+Public ctrlGlobalsCtrlID As Variant
+Public ctrlShiftID As Variant
+Public ctrlMoyenneMicG As Variant
+Public ctrlMoyenneMicD As Variant
+Public ctrlMicG1 As Variant
+Public ctrlMicG2 As Variant
+Public ctrlMicG3 As Variant
+Public ctrlMicD1 As Variant
+Public ctrlMicD2 As Variant
+Public ctrlMicD3 As Variant
+Public ctrlMasseSurfaciqueGG As Variant
+Public ctrlMasseSurfaciqueGC As Variant
+Public ctrlMasseSurfaciqueDC As Variant
+Public ctrlMasseSurfaciqueDD As Variant
+Public ctrlBain As Variant
+Public ctrlLoi As Variant
+Public ctrlProductRollID As Variant
+Public ctrlSavedOnRoll As Variant
 
 ' Structure pour définir une colonne
 Private Type ColumnConfig
