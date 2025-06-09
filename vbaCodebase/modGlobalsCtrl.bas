@@ -227,3 +227,31 @@ Public Function AreAllGlobalsCtrlFilled(Optional showMsg As Boolean = False) As 
         AreAllGlobalsCtrlFilled = True
     End If
 End Function
+
+Public Sub FillGlobalsCtrlRandom()
+    Dim minVal As Double, maxVal As Double, nominal As Double
+    Dim i As Integer
+    ' Micronnaire G et D
+    minVal = ThisWorkbook.Names("micronnaireMin").RefersToRange.Value
+    maxVal = ThisWorkbook.Names("micronnaireMax").RefersToRange.Value
+    nominal = (minVal + maxVal) / 2
+    For i = 1 To 3
+        ThisWorkbook.Names("micG" & i).RefersToRange.Value = Round(nominal + (Rnd() - 0.5) * (maxVal - minVal) * 0.2, 2)
+        ThisWorkbook.Names("micD" & i).RefersToRange.Value = Round(nominal + (Rnd() - 0.5) * (maxVal - minVal) * 0.2, 2)
+    Next i
+    ' Masse surfacique
+    Dim masseNames As Variant: masseNames = Array("masseSurfaciqueGG", "masseSurfaciqueGC", "masseSurfaciqueDC", "masseSurfaciqueDD")
+    minVal = ThisWorkbook.Names("masseSurfMin").RefersToRange.Value
+    maxVal = ThisWorkbook.Names("masseSurfMax").RefersToRange.Value
+    Dim j As Integer
+    For j = 0 To 3
+        ThisWorkbook.Names(masseNames(j)).RefersToRange.Value = Round(minVal + Rnd() * (maxVal - minVal), 4)
+    Next j
+    ' Bain
+    minVal = ThisWorkbook.Names("bainMin").RefersToRange.Value
+    maxVal = ThisWorkbook.Names("bainMax").RefersToRange.Value
+    nominal = (minVal + maxVal) / 2
+    ThisWorkbook.Names("bain").RefersToRange.Value = Round(nominal + (Rnd() - 0.5) * (maxVal - minVal) * 0.2, 2)
+    ' LOI
+    ThisWorkbook.Names("loi").RefersToRange.Value = "OK"
+End Sub
