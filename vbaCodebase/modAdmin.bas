@@ -180,13 +180,13 @@ Public Sub ClearInactiveRollArea()
 End Sub 
 
 Public Sub ShiftsRotate()
-    
     ' Vider le nom de l'opérateur
     PRODUCTION_WS.Range(RANGE_SHIFT_OPERATEUR).Value = ""
     
     ' Mettre la date actuelle (sans l'heure)
-    PRODUCTION_WS.Range(RANGE_SHIFT_DATE).Value = Format(Now(), "dd/mm/yyyy")
-    
+    ' PRODUCTION_WS.Range(RANGE_SHIFT_DATE).Value = Format(Now(), "dd/mm/yyyy")
+    call SetTodayDate
+
     ' Vérifier si la feuille est protégée
     Dim wasProtected As Boolean
     wasProtected = PRODUCTION_WS.ProtectContents
@@ -201,9 +201,6 @@ Public Sub ShiftsRotate()
     ' Effacer la valeur actuelle
     PRODUCTION_WS.Range(RANGE_SHIFT_VACCATION).Value = ""
     
-    ' Afficher la valeur actuelle
-    MsgBox "Valeur actuelle du poste : " & currentValue
-    
     ' Rotation des postes
     Select Case currentValue
         Case "Nuit"
@@ -214,17 +211,40 @@ Public Sub ShiftsRotate()
             PRODUCTION_WS.Range(RANGE_SHIFT_VACCATION).Value = "Nuit"
     End Select
     
-    ' Afficher la nouvelle valeur
-    MsgBox "Nouvelle valeur du poste : " & PRODUCTION_WS.Range(RANGE_SHIFT_VACCATION).Value
+    ' Reproteger la feuille si nécessaire
+    If wasProtected Then
+        PRODUCTION_WS.Protect
+    End If
+End Sub
+
+Public Sub ShiftMachineRotate()
+    ' Vérifier si la feuille est protégée
+    Dim wasProtected As Boolean
+    wasProtected = PRODUCTION_WS.ProtectContents
+    If wasProtected Then
+        PRODUCTION_WS.Unprotect
+    End If
+    
+    ' Vérifier si la machine est démarrée
+    If PRODUCTION_WS.Range(RANGE_SHIFT_MACHINE_FIN_POSTE).Value = "Démarrée" Then
+        ' Mettre la machine à démarrer
+        PRODUCTION_WS.Range(RANGE_SHIFT_MACHINE_PRISE_POSTE).Value = "Démarrée"
+        
+        ' Copier la valeur de la ligne enroulée
+        PRODUCTION_WS.Range(RANGE_SHIFT_LG_ENROULEE_PRISE_POSTE).Value = PRODUCTION_WS.Range(RANGE_SHIFT_LG_ENROULEE_FIN_POSTE).Value
+        
+        ' Vider la valeur de fin de poste
+        PRODUCTION_WS.Range(RANGE_SHIFT_LG_ENROULEE_FIN_POSTE).Value = ""
+    End If
     
     ' Reproteger la feuille si nécessaire
     If wasProtected Then
         PRODUCTION_WS.Protect
     End If
-
 End Sub
 
-Public Sub TestShiftsRotate()
-    ShiftsRotate
-    MsgBox "Rotation effectuée !", vbInformation, "Test Rotation"
-End Sub 
+Public Sub TestShiftMachineRotate()
+    ShiftMachineRotate
+    MsgBox "Rotation machine effectuée !", vbInformation, "Test Rotation Machine"
+End Sub
+

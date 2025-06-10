@@ -330,4 +330,6 @@ Public Sub AppendToDataShifts(ws As Worksheet)
     ws.Cells(nextRow, colStart + 14).Value = ctrlSavedOnRoll
     Call ClearGlobalsCtrlValues
     MsgBox "Le poste a été enregistré avec succès.", vbInformation, "Enregistrement réussi"
+    call ShiftsRotate
+    call ShiftMachineRotate
 End Sub
