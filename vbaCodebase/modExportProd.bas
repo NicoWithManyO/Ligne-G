@@ -119,12 +119,16 @@ Public Sub saveRollFromProd()
         micD2 = ThisWorkbook.Names("micD2").RefersToRange.Value
         micD3 = ThisWorkbook.Names("micD3").RefersToRange.Value
         
-        If IsNumeric(micG1) And IsNumeric(micG2) And IsNumeric(micG3) Then
+        ' Vérifier si toutes les valeurs sont numériques avant de calculer la moyenne
+        If IsNumeric(micG1) And IsNumeric(micG2) And IsNumeric(micG3) And _
+           Not IsEmpty(micG1) And Not IsEmpty(micG2) And Not IsEmpty(micG3) Then
             myRoll.MicG = Round((CDbl(micG1) + CDbl(micG2) + CDbl(micG3)) / 3, 2)
         Else
             myRoll.MicG = ""
         End If
-        If IsNumeric(micD1) And IsNumeric(micD2) And IsNumeric(micD3) Then
+        
+        If IsNumeric(micD1) And IsNumeric(micD2) And IsNumeric(micD3) And _
+           Not IsEmpty(micD1) And Not IsEmpty(micD2) And Not IsEmpty(micD3) Then
             myRoll.MicD = Round((CDbl(micD1) + CDbl(micD2) + CDbl(micD3)) / 3, 2)
         Else
             myRoll.MicD = ""
@@ -133,12 +137,13 @@ Public Sub saveRollFromProd()
         Dim masseGG As Variant, masseDD As Variant
         masseGG = ThisWorkbook.Names("masseSurfaciqueGG").RefersToRange.Value
         masseDD = ThisWorkbook.Names("masseSurfaciqueDD").RefersToRange.Value
-        If IsNumeric(masseGG) Then
+        If IsNumeric(masseGG) And Not IsEmpty(masseGG) Then
             myRoll.MasseSurfaciqueG = masseGG
         Else
             myRoll.MasseSurfaciqueG = ""
         End If
-        If IsNumeric(masseDD) Then
+        
+        If IsNumeric(masseDD) And Not IsEmpty(masseDD) Then
             myRoll.MasseSurfaciqueD = masseDD
         Else
             myRoll.MasseSurfaciqueD = ""

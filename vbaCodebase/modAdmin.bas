@@ -178,3 +178,53 @@ Public Sub ClearInactiveRollArea()
     call RewriteActiveRollLengths
     If wasProtected Then ws.Protect
 End Sub 
+
+Public Sub ShiftsRotate()
+    
+    ' Vider le nom de l'opérateur
+    PRODUCTION_WS.Range(RANGE_SHIFT_OPERATEUR).Value = ""
+    
+    ' Mettre la date actuelle (sans l'heure)
+    PRODUCTION_WS.Range(RANGE_SHIFT_DATE).Value = Format(Now(), "dd/mm/yyyy")
+    
+    ' Vérifier si la feuille est protégée
+    Dim wasProtected As Boolean
+    wasProtected = PRODUCTION_WS.ProtectContents
+    If wasProtected Then
+        PRODUCTION_WS.Unprotect
+    End If
+    
+    ' Stocker la valeur actuelle
+    Dim currentValue As String
+    currentValue = Trim(PRODUCTION_WS.Range(RANGE_SHIFT_VACCATION).Value)
+    
+    ' Effacer la valeur actuelle
+    PRODUCTION_WS.Range(RANGE_SHIFT_VACCATION).Value = ""
+    
+    ' Afficher la valeur actuelle
+    MsgBox "Valeur actuelle du poste : " & currentValue
+    
+    ' Rotation des postes
+    Select Case currentValue
+        Case "Nuit"
+            PRODUCTION_WS.Range(RANGE_SHIFT_VACCATION).Value = "Matin"
+        Case "Matin"
+            PRODUCTION_WS.Range(RANGE_SHIFT_VACCATION).Value = "Après-Midi"
+        Case "Après-Midi"
+            PRODUCTION_WS.Range(RANGE_SHIFT_VACCATION).Value = "Nuit"
+    End Select
+    
+    ' Afficher la nouvelle valeur
+    MsgBox "Nouvelle valeur du poste : " & PRODUCTION_WS.Range(RANGE_SHIFT_VACCATION).Value
+    
+    ' Reproteger la feuille si nécessaire
+    If wasProtected Then
+        PRODUCTION_WS.Protect
+    End If
+
+End Sub
+
+Public Sub TestShiftsRotate()
+    ShiftsRotate
+    MsgBox "Rotation effectuée !", vbInformation, "Test Rotation"
+End Sub 
