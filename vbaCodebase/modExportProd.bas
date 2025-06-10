@@ -145,7 +145,10 @@ Public Sub saveRollFromProd()
         End If
         ' Ensimage
         myRoll.Ensimage = PRODUCTION_WS.Range("bain").Value
-        PRODUCTION_WS.Range("AT59").Value = myRoll.ID
+        ' Ne mettre l'ID dans AT59 que si le rouleau est conforme
+        If UCase(myRoll.Status) = "CONFORME" Then
+            PRODUCTION_WS.Range("AT59").Value = myRoll.ID
+        End If
     End If
     ' --- Fin gestion conditionnelle des contrôles globaux ---
     
