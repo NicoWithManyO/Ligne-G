@@ -120,6 +120,25 @@ End Sub
 ' @param ws : Feuille data_shifts où ajouter les données
 ' @return : aucun
 Public Sub AppendToDataShifts(ws As Worksheet)
+    ' Vérification de l'état de la machine et des temps de démarrage
+    If MachinePrisePoste = "A l'Arrêt" Then
+        Dim hasStartupTime As Boolean
+        hasStartupTime = False
+        Dim cell As Range
+        For Each cell In PRODUCTION_WS.Range("AC78:AC100")
+            If cell.Value = "Démarrage" Then
+                hasStartupTime = True
+                Exit For
+            End If
+        Next cell
+        
+        If Not hasStartupTime Then
+            If MsgBox("La machine était à l'arrêt à la prise de poste, mais aucun temps de démarrage déclaré, continuer quand même ?", vbQuestion + vbYesNo, "Avertissement") = vbNo Then
+                Exit Sub
+            End If
+        End If
+    End If
+
     Dim lastRow As Long
     Dim nextRow As Long
     Dim i As Long
