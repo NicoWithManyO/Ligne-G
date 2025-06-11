@@ -225,26 +225,20 @@ Public Sub ShiftMachineRotate()
         PRODUCTION_WS.Unprotect
     End If
     
-    ' Vérifier si la machine est démarrée
+    ' Copier l'état de la machine
+    PRODUCTION_WS.Range(RANGE_SHIFT_MACHINE_PRISE_POSTE).Value = PRODUCTION_WS.Range(RANGE_SHIFT_MACHINE_FIN_POSTE).Value
+    
     If PRODUCTION_WS.Range(RANGE_SHIFT_MACHINE_FIN_POSTE).Value = "Démarrée" Then
-        ' Mettre la machine à démarrer
-        PRODUCTION_WS.Range(RANGE_SHIFT_MACHINE_PRISE_POSTE).Value = "Démarrée"
-        
         ' Copier la valeur de la ligne enroulée
         PRODUCTION_WS.Range(RANGE_SHIFT_LG_ENROULEE_PRISE_POSTE).Value = PRODUCTION_WS.Range(RANGE_SHIFT_LG_ENROULEE_FIN_POSTE).Value
         
         ' Vider la valeur de fin de poste
         PRODUCTION_WS.Range(RANGE_SHIFT_LG_ENROULEE_FIN_POSTE).Value = ""
     End If
-    
+    PRODUCTION_WS.Range(RANGE_SHIFT_MACHINE_FIN_POSTE).Value = "Démarrée"
     ' Reproteger la feuille si nécessaire
     If wasProtected Then
         PRODUCTION_WS.Protect
     End If
-End Sub
-
-Public Sub TestShiftMachineRotate()
-    ShiftMachineRotate
-    MsgBox "Rotation machine effectuée !", vbInformation, "Test Rotation Machine"
 End Sub
 

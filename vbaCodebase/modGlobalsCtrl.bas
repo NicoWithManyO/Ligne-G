@@ -169,7 +169,7 @@ Public Sub ClearGlobalsCtrlValues()
     For i = LBound(ctrlNames) To UBound(ctrlNames)
         ThisWorkbook.Names(ctrlNames(i)).RefersToRange.Value = ""
     Next i
-    Call SetGlobalsCtrlSaved
+
 End Sub
 
 Public Sub SetGlobalsCtrlSaved()
@@ -190,8 +190,6 @@ Public Sub ResetGlobalsCtrlSaved()
     Dim wasProtected As Boolean: wasProtected = ws.ProtectContents
     If wasProtected Then ws.Unprotect 
     ws.Range("AT59").Value = ""
-    ' ws.Range("AR60:AV60").Interior.Color = RGB(77, 147, 217) ' Bleu #4D93D9
-    ' ws.Range("AK60:BC60").Interior.Color = RGB(77, 147, 217)
     If wasProtected Then ws.Protect
 End Sub
 

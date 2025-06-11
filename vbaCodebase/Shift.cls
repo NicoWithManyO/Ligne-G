@@ -111,7 +111,9 @@ Public Sub SaveToSheet(ws As Worksheet)
             commentRange.Cells(i + 1, 1).Value = commentLines(i)
         End If
     Next i
-    Call ExportGlobalsCtrlToSheet
+    ' Call ExportGlobalsCtrlToSheet
+    Call ClearTimeLostRange
+    call ClearGlobalsCtrlValues
     ' ws.Range(RANGE_SHIFT_SAVE_DATE_TIME).Value = SaveDateTime
 End Sub
 
@@ -329,7 +331,10 @@ Public Sub AppendToDataShifts(ws As Worksheet)
     ws.Cells(nextRow, colStart + 13).Value = ctrlLoi
     ws.Cells(nextRow, colStart + 14).Value = ctrlSavedOnRoll
     Call ClearGlobalsCtrlValues
-    MsgBox "Le poste a été enregistré avec succès.", vbInformation, "Enregistrement réussi"
+
+    Call ClearTimeLostRange
     call ShiftsRotate
     call ShiftMachineRotate
+    
+    MsgBox "Le poste a été enregistré avec succès.", vbInformation, "Enregistrement réussi"
 End Sub

@@ -57,23 +57,18 @@ Public Sub ClearTimeLostRange()
     Set ws = PRODUCTION_WS
     If ws Is Nothing Then Exit Sub
     
-    ' Demander confirmation
-    Dim rep As VbMsgBoxResult
-    rep = MsgBox("Voulez-vous réellement supprimer tout temps perdu déclaré ?", vbYesNo + vbQuestion, "Confirmation")
-    If rep <> vbYes Then Exit Sub
-    
     ' Déprotéger la feuille si nécessaire
     Dim wasProtected As Boolean
     wasProtected = ws.ProtectContents
     If wasProtected Then ws.Unprotect
-    
+    ' MsgBox "La plage de temps perdu a été vidée.", vbInformation
     ' Vider la plage
     ws.Range("AC78:AG99").Value = ""
     
     ' Reproter la feuille si elle était protégée
     If wasProtected Then ws.Protect
     
-    MsgBox "La plage de temps perdu a été vidée.", vbInformation
+    ' MsgBox "La plage de temps perdu a été vidée.", vbInformation
 End Sub
 
 
