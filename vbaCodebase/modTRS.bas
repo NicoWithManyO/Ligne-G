@@ -71,4 +71,3 @@ Public Sub ClearTimeLostRange()
     ' MsgBox "La plage de temps perdu a été vidée.", vbInformation
 End Sub
 
-

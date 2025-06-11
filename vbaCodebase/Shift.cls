@@ -335,6 +335,8 @@ Public Sub AppendToDataShifts(ws As Worksheet)
     Call ClearTimeLostRange
     call ShiftsRotate
     call ShiftMachineRotate
-    
+    PRODUCTION_WS.Range("BG77").Value = "isFirst"
+    PRODUCTION_WS.Range("AD49").Value = ""
+    PRODUCTION_WS.Range("AD50").Value = "" 
     MsgBox "Le poste a été enregistré avec succès.", vbInformation, "Enregistrement réussi"
 End Sub

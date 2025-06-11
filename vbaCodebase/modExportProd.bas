@@ -163,6 +163,34 @@ Public Sub saveRollFromProd()
     Debug.Print "[saveRollFromProd] Rouleau sauvegardé : " & myRoll.ID
     Debug.Print "[saveRollFromProd] Status du rouleau : " & myRoll.Status
 
+    ' Calculer la longueur à enregistrer
+    Dim lengthToRecord As Double
+    lengthToRecord = myRoll.Length
+    
+    ' Si BG77 contient "isFirst", soustraire shiftLgEnrouleePrisePoste
+    If InStr(1, PRODUCTION_WS.Range("BG77").Value, "isFirst", vbTextCompare) > 0 Then
+        Dim prisePosteLength As Variant
+        prisePosteLength = PRODUCTION_WS.Range(RANGE_SHIFT_LG_ENROULEE_PRISE_POSTE).Value
+        If IsNumeric(prisePosteLength) And Not IsEmpty(prisePosteLength) Then
+            lengthToRecord = lengthToRecord - CDbl(prisePosteLength)
+        End If
+    End If
+
+    ' Ajouter la longueur à AD49 ou AD50 selon le statut
+    If UCase(myRoll.Status) = "CONFORME" Then
+        If IsEmpty(PRODUCTION_WS.Range("AD49").Value) Then
+            PRODUCTION_WS.Range("AD49").Value = lengthToRecord
+        Else
+            PRODUCTION_WS.Range("AD49").Value = PRODUCTION_WS.Range("AD49").Value + lengthToRecord
+        End If
+    Else
+        If IsEmpty(PRODUCTION_WS.Range("AD50").Value) Then
+            PRODUCTION_WS.Range("AD50").Value = lengthToRecord
+        Else
+            PRODUCTION_WS.Range("AD50").Value = PRODUCTION_WS.Range("AD50").Value + lengthToRecord
+        End If
+    End If
+    PRODUCTION_WS.Range("BG77").Value = ""
     ' Si le status est conforme, on incrémente le numéro de roll
     If UCase(myRoll.Status) = "CONFORME" Then
         Dim currentRollNumber As Long
