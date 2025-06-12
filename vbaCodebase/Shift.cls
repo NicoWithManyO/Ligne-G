@@ -250,7 +250,7 @@ Public Sub AppendToDataShifts(ws As Worksheet)
     ws.Cells(nextRow, 6).Value = MachinePrisePoste
     ' Longueur prise de poste uniquement si machine démarrée
     ' If MachinePrisePoste = "Démarrée" Then
-    ws.Cells(nextRow, 10).Value = LgEnrouleePrisePoste
+    ws.Cells(nextRow, 7).Value = LgEnrouleePrisePoste
     ' Else
     '     ws.Cells(nextRow, 10).Value = ""
     ' End If
