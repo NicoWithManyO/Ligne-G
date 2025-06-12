@@ -281,6 +281,9 @@ Public Sub AppendToDataShifts(ws As Worksheet)
         ctrlSavedOnRoll = at59Val
     End If
 
+    ' Vider la plage des commentaires sur PROD
+    PRODUCTION_WS.Range(RANGE_SHIFT_COMMENTAIRES).Value = ""
+
     ' Déclaration unique de colStart
     Dim colStart As Long
     ' Gestion automatique des en-têtes pour les colonnes ctrl*

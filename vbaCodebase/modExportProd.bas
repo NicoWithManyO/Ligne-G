@@ -219,7 +219,7 @@ Public Sub saveRollFromProd()
 
     ' Vider la zone active et réécrire les mètres
     Call ClearAllActiveRollArea
-    Call ExportGlobalsCtrlToSheet
+    ' Call ExportGlobalsCtrlToSheet
     ' Message de confirmation
     MsgBox "Le rouleau " & myRoll.ID & " a bien été sauvegardé : " & myRoll.Status, vbInformation
 
