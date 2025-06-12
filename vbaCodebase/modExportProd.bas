@@ -176,12 +176,12 @@ Public Sub saveRollFromProd()
         End If
     End If
 
-    ' Ajouter la longueur à AD49 ou AD50 selon le statut
+    ' Ajouter la longueur à AB49 ou AD50 selon le statut
     If UCase(myRoll.Status) = "CONFORME" Then
-        If IsEmpty(PRODUCTION_WS.Range("AD49").Value) Then
-            PRODUCTION_WS.Range("AD49").Value = lengthToRecord
+        If IsEmpty(PRODUCTION_WS.Range("AB49").Value) Then
+            PRODUCTION_WS.Range("AB49").Value = lengthToRecord
         Else
-            PRODUCTION_WS.Range("AD49").Value = PRODUCTION_WS.Range("AD49").Value + lengthToRecord
+            PRODUCTION_WS.Range("AB49").Value = PRODUCTION_WS.Range("AB49").Value + lengthToRecord
         End If
     Else
         If IsEmpty(PRODUCTION_WS.Range("AD50").Value) Then
@@ -190,7 +190,10 @@ Public Sub saveRollFromProd()
             PRODUCTION_WS.Range("AD50").Value = PRODUCTION_WS.Range("AD50").Value + lengthToRecord
         End If
     End If
+
     PRODUCTION_WS.Range("BG77").Value = ""
+    PRODUCTION_WS.Range("AE64").Value = "ok"
+    
     ' Si le status est conforme, on incrémente le numéro de roll
     If UCase(myRoll.Status) = "CONFORME" Then
         Dim currentRollNumber As Long

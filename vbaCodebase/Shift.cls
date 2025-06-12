@@ -5,30 +5,30 @@ END
 Attribute VB_Name = "Shift"
 Option Explicit
 
-' PropriÃ©tÃ©s Shift
+' Propriétés Shift
 ' ID : Identifiant unique du poste
 Public ID As Variant
 ' DatePoste : Date du poste
 Public DatePoste As Variant
-' Operateur : Nom de l'opÃ©rateur
+' Operateur : Nom de l'opérateur
 Public Operateur As Variant
-' Vaccation : Type de vacation (matin, aprÃ¨s-midi, nuit)
+' Vaccation : Type de vacation (matin, après-midi, nuit)
 Public Vaccation As Variant
-' Duree : DurÃ©e du poste en heures
+' Duree : Durée du poste en heures
 Public Duree As Variant
-' MachinePrisePoste : NumÃ©ro de la machine au dÃ©but du poste
+' MachinePrisePoste : Numéro de la machine au début du poste
 Public MachinePrisePoste As Variant
-' LgEnrouleePrisePoste : Longueur enroulÃ©e au dÃ©but du poste
+' LgEnrouleePrisePoste : Longueur enroulée au début du poste
 Public LgEnrouleePrisePoste As Variant
-' MachineFinPoste : NumÃ©ro de la machine Ã  la fin du poste
+' MachineFinPoste : Numéro de la machine à la fin du poste
 Public MachineFinPoste As Variant
-' LgEnrouleeFinPoste : Longueur enroulÃ©e Ã  la fin du poste
+' LgEnrouleeFinPoste : Longueur enroulée à la fin du poste
 Public LgEnrouleeFinPoste As Variant
 ' Commentaires : Commentaires additionnels sur le poste
 Public Commentaires As Variant
 ' SaveDateTime : Date et heure de la sauvegarde
 Public SaveDateTime As Variant
-' ContrÃ´les globaux
+' Contrôles globaux
 Public ctrlMoyenneMicG As Variant
 Public ctrlMoyenneMicD As Variant
 Public ctrlMicG1 As Variant
@@ -49,10 +49,12 @@ Public lgOK As Variant
 Public lgNOK As Variant
 Public lgScrap As Variant
 Public possibleLg As Variant
+' TRS : Taux de Rendement Synthétique (% de lgOK par rapport à possibleLg)
+Public TRS As Variant
 
-' Charge les donnÃ©es du shift depuis la feuille
-' @but : Initialise les propriÃ©tÃ©s du shift avec les valeurs de la feuille
-' @param ws : Feuille contenant les donnÃ©es du shift
+' Charge les données du shift depuis la feuille
+' @but : Initialise les propriétés du shift avec les valeurs de la feuille
+' @param ws : Feuille contenant les données du shift
 ' @return : aucun
 Public Sub LoadFromSheet(ws As Worksheet)
     ID = ws.Range(RANGE_SHIFT_ID).Value
@@ -65,13 +67,20 @@ Public Sub LoadFromSheet(ws As Worksheet)
     MachineFinPoste = ws.Range(RANGE_SHIFT_MACHINE_FIN_POSTE).Value
     LgEnrouleeFinPoste = ws.Range(RANGE_SHIFT_LG_ENROULEE_FIN_POSTE).Value
     
-    ' Charger les longueurs spÃ©cifiques depuis les adresses fixes
+    ' Charger les longueurs spécifiques depuis les adresses fixes
     lgOK = ws.Range("AD49").Value
     lgNOK = ws.Range("AD50").Value
     lgScrap = ws.Range("AD48").Value
     possibleLg = ws.Range("AD47").Value
     
-    ' ConcatÃ©ne les lignes des commentaires
+    ' Calcul du TRS (Taux de Rendement Synthétique)
+    If IsNumeric(lgOK) And IsNumeric(possibleLg) And CDbl(possibleLg) > 0 Then
+        TRS = Round((CDbl(lgOK) / CDbl(possibleLg)) * 100, 2)
+    Else
+        TRS = 0
+    End If
+    
+    ' Concaténe les lignes des commentaires
     Dim commentRange As Range
     Dim commentCell As Range
     Dim commentText As String
@@ -90,9 +99,9 @@ Public Sub LoadFromSheet(ws As Worksheet)
     SaveDateTime = Now
 End Sub
 
-' Sauvegarde les donnÃ©es du shift dans la feuille
-' @but : Ã©crit les propriÃ©tÃ©s du shift dans la feuille
-' @param ws : Feuille oÃ¹ sauvegarder les donnÃ©es
+' Sauvegarde les données du shift dans la feuille
+' @but : écrit les propriétés du shift dans la feuille
+' @param ws : Feuille où sauvegarder les données
 ' @return : aucun
 Public Sub SaveToSheet(ws As Worksheet)
     ws.Range(RANGE_SHIFT_ID).Value = ID
@@ -105,7 +114,7 @@ Public Sub SaveToSheet(ws As Worksheet)
     ws.Range(RANGE_SHIFT_MACHINE_FIN_POSTE).Value = MachineFinPoste
     ws.Range(RANGE_SHIFT_LG_ENROULEE_FIN_POSTE).Value = LgEnrouleeFinPoste
     
-    ' RÃ©partit les commentaires sur les lignes
+    ' Répartit les commentaires sur les lignes
     Dim commentRange As Range
     Dim commentLines() As String
     Dim i As Long
@@ -116,7 +125,7 @@ Public Sub SaveToSheet(ws As Worksheet)
     ' Efface d'abord la plage
     commentRange.ClearContents
     
-    ' RÃ©partit les lignes
+    ' Répartit les lignes
     For i = 0 To UBound(commentLines)
         If i <= commentRange.Rows.Count - 1 Then
             commentRange.Cells(i + 1, 1).Value = commentLines(i)
@@ -128,25 +137,25 @@ Public Sub SaveToSheet(ws As Worksheet)
     ' ws.Range(RANGE_SHIFT_SAVE_DATE_TIME).Value = SaveDateTime
 End Sub
 
-' Ajoute les donnÃ©es du shift Ã  la fin de la feuille data_shifts
+' Ajoute les données du shift à la fin de la feuille data_shifts
 ' @but : Enregistre un nouveau shift dans l'historique
-' @param ws : Feuille data_shifts oÃ¹ ajouter les donnÃ©es
+' @param ws : Feuille data_shifts où ajouter les données
 ' @return : aucun
 Public Sub AppendToDataShifts(ws As Worksheet)
-    ' VÃ©rification de l'Ã©tat de la machine et des temps de dÃ©marrage
-    If MachinePrisePoste = "A l'ArrÃªt" Then
+    ' Vérification de l'état de la machine et des temps de démarrage
+    If MachinePrisePoste = "A l'Arrêt" Then
         Dim hasStartupTime As Boolean
         hasStartupTime = False
         Dim cell As Range
         For Each cell In PRODUCTION_WS.Range("AC78:AC100")
-            If cell.Value = "DÃ©marrage" Then
+            If cell.Value = "Démarrage" Then
                 hasStartupTime = True
                 Exit For
             End If
         Next cell
         
         If Not hasStartupTime Then
-            If MsgBox("La machine Ã©tait Ã  l'arrÃªt Ã  la prise de poste, mais aucun temps de dÃ©marrage dÃ©clarÃ©, continuer quand mÃªme ?", vbQuestion + vbYesNo, "Avertissement") = vbNo Then
+            If MsgBox("La machine était à l'arrêt à la prise de poste, mais aucun temps de démarrage déclaré, continuer quand même ?", vbQuestion + vbYesNo, "Avertissement") = vbNo Then
                 Exit Sub
             End If
         End If
@@ -157,66 +166,66 @@ Public Sub AppendToDataShifts(ws As Worksheet)
     Dim i As Long
     Dim shiftExists As Boolean
     
-    ' VÃ©rifie si le shift existe dÃ©jÃ 
+    ' Vérifie si le shift existe déjà
     lastRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
     shiftExists = False
     
-    For i = 2 To lastRow  ' Commence Ã  2 pour sauter l'en-tÃªte
+    For i = 2 To lastRow  ' Commence à 2 pour sauter l'en-tête
         If ws.Cells(i, 1).Value = ID Then
             shiftExists = True
-            MsgBox "Un poste avec l'ID " & ID & " existe dÃ©jÃ  ...", vbExclamation, "Poste dÃ©jÃ  existant"
+            MsgBox "Un poste avec l'ID " & ID & " existe déjà ...", vbExclamation, "Poste déjà existant"
             Exit Sub
         End If
     Next i
     
-    ' VÃ©rifie tous les champs obligatoires
+    ' Vérifie tous les champs obligatoires
     If ID = "" Or IsEmpty(ID) Then
-        MsgBox "L'ID du poste est obligatoire.", vbExclamation, "DonnÃ©es manquantes"
+        MsgBox "L'ID du poste est obligatoire.", vbExclamation, "Données manquantes"
         Exit Sub
     End If
     
     If DatePoste = "" Or IsEmpty(DatePoste) Then
-        MsgBox "La date du poste est obligatoire.", vbExclamation, "DonnÃ©es manquantes"
+        MsgBox "La date du poste est obligatoire.", vbExclamation, "Données manquantes"
         Exit Sub
     End If
     
     If Operateur = "" Or IsEmpty(Operateur) Then
-        MsgBox "L'opÃ©rateur est obligatoire.", vbExclamation, "DonnÃ©es manquantes"
+        MsgBox "L'opérateur est obligatoire.", vbExclamation, "Données manquantes"
         Exit Sub
     End If
     
     If Vaccation = "" Or IsEmpty(Vaccation) Then
-        MsgBox "La vacation est obligatoire.", vbExclamation, "DonnÃ©es manquantes"
+        MsgBox "La vacation est obligatoire.", vbExclamation, "Données manquantes"
         Exit Sub
     End If
     
     If Duree = "" Or IsEmpty(Duree) Then
-        MsgBox "La durÃ©e du poste est obligatoire.", vbExclamation, "DonnÃ©es manquantes"
+        MsgBox "La durée du poste est obligatoire.", vbExclamation, "Données manquantes"
         Exit Sub
     End If
     
     If MachinePrisePoste = "" Or IsEmpty(MachinePrisePoste) Then
-        MsgBox "L'Ã©tat de la machine en prise de poste est obligatoire.", vbExclamation, "DonnÃ©es manquantes"
+        MsgBox "L'état de la machine en prise de poste est obligatoire.", vbExclamation, "Données manquantes"
         Exit Sub
     End If
     
     If MachineFinPoste = "" Or IsEmpty(MachineFinPoste) Then
-        MsgBox "L'Ã©tat de la machine en fin de poste est obligatoire.", vbExclamation, "DonnÃ©es manquantes"
+        MsgBox "L'état de la machine en fin de poste est obligatoire.", vbExclamation, "Données manquantes"
         Exit Sub
     End If
     
-    ' VÃ©rifie les longueurs si les machines sont dÃ©marrÃ©es
-    If MachinePrisePoste = "DÃ©marrÃ©e" And (LgEnrouleePrisePoste = "" Or IsEmpty(LgEnrouleePrisePoste)) Then
-        MsgBox "La machine est dÃ©marrÃ©e en prise de poste mais aucune longueur n'est saisie.", vbExclamation, "DonnÃ©es manquantes"
+    ' Vérifie les longueurs si les machines sont démarrées
+    If MachinePrisePoste = "Démarrée" And (LgEnrouleePrisePoste = "" Or IsEmpty(LgEnrouleePrisePoste)) Then
+        MsgBox "La machine est démarrée en prise de poste mais aucune longueur n'est saisie.", vbExclamation, "Données manquantes"
         Exit Sub
     End If
     
-    If MachineFinPoste = "DÃ©marrÃ©e" And (LgEnrouleeFinPoste = "" Or IsEmpty(LgEnrouleeFinPoste)) Then
-        MsgBox "La machine est dÃ©marrÃ©e en fin de poste mais aucune longueur n'est saisie.", vbExclamation, "DonnÃ©es manquantes"
+    If MachineFinPoste = "Démarrée" And (LgEnrouleeFinPoste = "" Or IsEmpty(LgEnrouleeFinPoste)) Then
+        MsgBox "La machine est démarrée en fin de poste mais aucune longueur n'est saisie.", vbExclamation, "Données manquantes"
         Exit Sub
     End If
     
-    ' VÃ©rification des contrÃ´les globaux obligatoires
+    ' Vérification des contrôles globaux obligatoires
     If Not AreAllGlobalsCtrlFilled(True) Then
         Exit Sub
     End If
@@ -226,7 +235,7 @@ Public Sub AppendToDataShifts(ws As Worksheet)
         Exit Sub
     End If
     
-    ' Si la feuille est vide, commence Ã  la ligne 2 (ligne 1 pour les en-tÃªtes)
+    ' Si la feuille est vide, commence à la ligne 2 (ligne 1 pour les en-têtes)
     If lastRow = 1 And ws.Cells(1, 1).Value = "" Then
         nextRow = 2
     Else
@@ -239,35 +248,24 @@ Public Sub AppendToDataShifts(ws As Worksheet)
     ws.Cells(nextRow, 4).Value = Vaccation
     ws.Cells(nextRow, 5).Value = Duree
     ws.Cells(nextRow, 6).Value = MachinePrisePoste
-    ' Longueur prise de poste uniquement si machine dÃ©marrÃ©e
-    If MachinePrisePoste = "DÃ©marrÃ©e" Then
-        ws.Cells(nextRow, 7).Value = LgEnrouleePrisePoste
-    Else
-        ws.Cells(nextRow, 7).Value = ""
-    End If
+    ' Longueur prise de poste uniquement si machine démarrée
+    ' If MachinePrisePoste = "Démarrée" Then
+    ws.Cells(nextRow, 10).Value = LgEnrouleePrisePoste
+    ' Else
+    '     ws.Cells(nextRow, 10).Value = ""
+    ' End If
     ws.Cells(nextRow, 8).Value = MachineFinPoste
-    ' Longueur fin de poste uniquement si machine dÃ©marrÃ©e
-    If MachineFinPoste = "DÃ©marrÃ©e" Then
-        ws.Cells(nextRow, 9).Value = LgEnrouleeFinPoste
-    Else
-        ws.Cells(nextRow, 9).Value = ""
-    End If
+    ' Longueur fin de poste uniquement si machine démarrée
+    ' If MachineFinPoste = "Démarrée" Then
+    ws.Cells(nextRow, 9).Value = LgEnrouleeFinPoste
+    ' Else
+    '     ws.Cells(nextRow, 9).Value = ""
+    ' End If
+    
     ws.Cells(nextRow, 10).Value = Commentaires
     ws.Cells(nextRow, 11).Value = Now ' Ajout de la date/heure de sauvegarde
 
-    ' Ajouter les en-tÃªtes pour les longueurs spÃ©cifiques si besoin
-    If ws.Cells(1, 12).Value = "" Then ws.Cells(1, 12).Value = "lgOK"
-    If ws.Cells(1, 13).Value = "" Then ws.Cells(1, 13).Value = "lgNOK"
-    If ws.Cells(1, 14).Value = "" Then ws.Cells(1, 14).Value = "lgScrap"
-    If ws.Cells(1, 15).Value = "" Then ws.Cells(1, 15).Value = "possibleLg"
-
-    ' Exporter les valeurs dans les colonnes correspondantes
-    ws.Cells(nextRow, 12).Value = lgOK
-    ws.Cells(nextRow, 13).Value = lgNOK
-    ws.Cells(nextRow, 14).Value = lgScrap
-    ws.Cells(nextRow, 15).Value = possibleLg
-
-    ' Remplir les contrÃ´les globaux
+    ' Remplir les contrôles globaux
     ctrlMoyenneMicG = ""
     ctrlMoyenneMicD = ""
     Dim micG1 As Variant, micG2 As Variant, micG3 As Variant
@@ -307,9 +305,9 @@ Public Sub AppendToDataShifts(ws As Worksheet)
     ' Vider la plage des commentaires sur PROD
     PRODUCTION_WS.Range(RANGE_SHIFT_COMMENTAIRES).Value = ""
 
-    ' DÃ©claration unique de colStart
+    ' Déclaration unique de colStart
     Dim colStart As Long
-    ' Gestion automatique des en-tÃªtes pour les colonnes ctrl*
+    ' Gestion automatique des en-têtes pour les colonnes ctrl*
     If ws.Cells(1, 1).Value = "" Then
         ws.Cells(1, 1).Value = "ID"
         ws.Cells(1, 2).Value = "DatePoste"
@@ -338,8 +336,14 @@ Public Sub AppendToDataShifts(ws As Worksheet)
         ws.Cells(1, colStart + 12).Value = "ctrlBain"
         ws.Cells(1, colStart + 13).Value = "ctrlLoi"
         ws.Cells(1, colStart + 14).Value = "ctrlSavedOnRoll"
+        colStart = colStart + 15
+        ws.Cells(1, colStart).Value = "lgOK"
+        ws.Cells(1, colStart + 1).Value = "lgNOK"
+        ws.Cells(1, colStart + 2).Value = "lgScrap"
+        ws.Cells(1, colStart + 3).Value = "possibleLg"
+        ws.Cells(1, colStart + 4).Value = "TRS"
     End If
-    ' Export dans la feuille Ã  la fin de la ligne
+    ' Export dans la feuille à la fin de la ligne
     colStart = ws.Cells(nextRow, ws.Columns.Count).End(xlToLeft).Column + 1
     ws.Cells(nextRow, colStart).Value = ctrlMoyenneMicG
     ws.Cells(nextRow, colStart + 1).Value = ctrlMoyenneMicD
@@ -356,13 +360,18 @@ Public Sub AppendToDataShifts(ws As Worksheet)
     ws.Cells(nextRow, colStart + 12).Value = ctrlBain
     ws.Cells(nextRow, colStart + 13).Value = ctrlLoi
     ws.Cells(nextRow, colStart + 14).Value = ctrlSavedOnRoll
-    
+    ws.Cells(nextRow, colStart + 15).Value = lgOK
+    ws.Cells(nextRow, colStart + 16).Value = lgNOK
+    ws.Cells(nextRow, colStart + 17).Value = lgScrap
+    ws.Cells(nextRow, colStart + 18).Value = possibleLg
+    ws.Cells(nextRow, colStart + 19).Value = TRS
+
     Call ClearGlobalsCtrlValues
     Call ClearTimeLostRange
     call ShiftsRotate
     call ShiftMachineRotate
     PRODUCTION_WS.Range("BG77").Value = "isFirst"
-    PRODUCTION_WS.Range("AD49").Value = ""
+    PRODUCTION_WS.Range("AB49").Value = ""
     PRODUCTION_WS.Range("AD50").Value = "" 
-    MsgBox "Le poste a Ã©tÃ© enregistrÃ© avec succÃ¨s.", vbInformation, "Enregistrement rÃ©ussi"
+    MsgBox "Le poste a été enregistré avec succès.", vbInformation, "Enregistrement réussi"
 End Sub
