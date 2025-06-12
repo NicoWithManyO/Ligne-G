@@ -4,10 +4,26 @@ Option Explicit
 ' Copie les données des cellules spécifiées vers la première ligne vide à partir de AC78
 ' @but : Copier les données de AM47:AO47, AQ47:AW47 et BB47:BC47 vers la première ligne vide à partir de AC78
 ' @return : aucun
-Public Sub CopyDataToFirstEmptyRow()
+Public Sub DeclareTimeLost()
     Dim ws As Worksheet
     Set ws = PRODUCTION_WS
     If ws Is Nothing Then Exit Sub
+    
+    ' Vérification des données requises
+    If Trim(ws.Range("AM47").Value) = "" Then
+        MsgBox "Indiquer le type de temps perdu.", vbExclamation, "Erreur"
+        Exit Sub
+    End If
+    
+    ' Vérification que BB47 est exploitable (pas d'erreur, numérique, >0)
+    If IsError(ws.Range("BB47").Value) Then
+        MsgBox "Erreur de calcul du temps perdu. Vérifiez les valeurs saisies.", vbExclamation, "Erreur"
+        Exit Sub
+    End If
+    If Not IsNumeric(ws.Range("BB47").Value) Or Val(ws.Range("BB47").Value) <= 0 Then
+        MsgBox "Le temps perdu doit être supérieur à 0.", vbExclamation, "Erreur"
+        Exit Sub
+    End If
     
     ' Demander confirmation
     Dim rep As VbMsgBoxResult

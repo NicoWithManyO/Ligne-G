@@ -330,8 +330,8 @@ Public Sub AppendToDataShifts(ws As Worksheet)
     ws.Cells(nextRow, colStart + 12).Value = ctrlBain
     ws.Cells(nextRow, colStart + 13).Value = ctrlLoi
     ws.Cells(nextRow, colStart + 14).Value = ctrlSavedOnRoll
+    
     Call ClearGlobalsCtrlValues
-
     Call ClearTimeLostRange
     call ShiftsRotate
     call ShiftMachineRotate
