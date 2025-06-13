@@ -1,64 +1,63 @@
-# PrÃ©requis
+# Prérequis
 
-Ce document dÃ©crit les Ã©tapes nÃ©cessaires pour que le systÃ¨me fonctionne correctement dans Excel, notamment en ce qui concerne l'accÃ¨s au code VBA et l'import des modules.
-
----
-
-## âœ… 1. Activer la rÃ©fÃ©rence "Microsoft VBA Extensibility 5.3"
-
-Cette rÃ©fÃ©rence est indispensable pour que le code puisse modifier dynamiquement les modules VBA (injection, import automatiqueâ€¦).
-
-### Ã‰tapes :
-1. Ouvre lâ€™Ã©diteur VBA (`Alt` + `F11`)
-2. Menu **Outils > RÃ©fÃ©rencesâ€¦**
-3. Cherche : **Microsoft Visual Basic for Applications Extensibility 5.3**
-4. Coche la case correspondante
-5. Clique sur **OK** pour valider
+Ce document décrit les étapes nécessaires pour que le système fonctionne correctement dans Excel, notamment en ce qui concerne l'accès au code VBA et l'import des modules.
 
 ---
 
-## âœ… 2. Autoriser l'accÃ¨s au modÃ¨le d'objet VBA
+## ? 1. Activer la référence "Microsoft VBA Extensibility 5.3"
 
-Cette option permet Ã  Excel d'accÃ©der Ã  son propre modÃ¨le dâ€™objet (indispensable pour manipuler le code depuis une macro).
+Cette référence est indispensable pour que le code puisse modifier dynamiquement les modules VBA (injection, import automatique…).
 
-### Ã‰tapes :
-1. Ouvre Excel
-2. Menu **Fichier > Options**
-3. Dans le menu Ã  gauche, clique sur **Centre de gestion de la confidentialitÃ©**
-4. Clique sur le bouton **ParamÃ¨tres du Centre de gestion de la confidentialitÃ©**
-5. Va dans la section **ParamÃ¨tres des macros**
-6. Coche la case suivante :
-   > ðŸ”² **AccÃ¨s approuvÃ© au modÃ¨le dâ€™objet du projet VBA**
-7. Clique sur **OK**, puis Ã  nouveau **OK** pour sortir
+### Étapes :
+1. Ouvre l'éditeur VBA (`Alt` + `F11`)
+2. Menu **Outils > Références…**
+3. Coche la case **Microsoft Visual Basic for Applications Extensibility 5.3**
+4. Clique sur **OK**
 
 ---
 
-## âœ… 3. Charger manuellement le module `modLoader.bas`
+## ? 2. Autoriser l'accès au modèle d'objet VBA
 
-Le module `modLoader.bas` est le point d'entrÃ©e du systÃ¨me. Il contient les fonctions nÃ©cessaires pour charger automatiquement tous les autres modules dans le projet VBA.
+Cette option permet à Excel d'accéder à son propre modèle d'objet (indispensable pour manipuler le code depuis une macro).
 
-### Ã‰tapes :
-1. Dans lâ€™Ã©diteur VBA (`Alt` + `F11`), sÃ©lectionne **Fichier > Importer un fichierâ€¦**
-2. Choisis le fichier `modLoader.bas` (dans le dossier `vbaCodebase/`)
-3. VÃ©rifie quâ€™il apparaÃ®t bien dans la liste des modules Ã  gauche
+### Étapes :
+1. Menu **Fichier > Options**
+2. Clique sur **Centre de gestion de la confidentialité**
+3. Dans le menu à gauche, clique sur **Centre de gestion de la confidentialité**
+4. Clique sur le bouton **Paramètres du Centre de gestion de la confidentialité**
+5. Va dans la section **Paramètres des macros**
+6. Coche la case :
+   > ?? **Accès approuvé au modèle d'objet du projet VBA**
+7. Clique sur **OK**, puis à nouveau **OK** pour sortir
+
+---
+
+## ? 3. Charger manuellement le module `modLoader.bas`
+
+Le module `modLoader.bas` est le point d'entrée du système. Il contient les fonctions nécessaires pour charger automatiquement tous les autres modules dans le projet VBA.
+
+### Étapes :
+1. Dans l'éditeur VBA (`Alt` + `F11`), sélectionne **Fichier > Importer un fichier…**
+2. Navigue jusqu'au dossier `vbaCodebase` et sélectionne `modLoader.bas`
+3. Vérifie qu'il apparaît bien dans la liste des modules à gauche
 4. Sauvegarde ton fichier Excel
 
-Ensuite, il sera possible dâ€™utiliser les fonctions de chargement automatique (`loadModulesFromFolder`, etc.)
+Ensuite, il sera possible d'utiliser les fonctions de chargement automatique (`loadModulesFromFolder`, etc.)
 
 ---
 
-## âœ… 4. Injecter le dÃ©marrage automatique (`Workbook_Open`)
+## ? 4. Injecter le démarrage automatique (`Workbook_Open`)
 
-AprÃ¨s avoir importÃ© le module `modLoader.bas`, il est nÃ©cessaire dâ€™exÃ©cuter manuellement la procÃ©dure suivante :
+Après avoir importé le module `modLoader.bas`, il est nécessaire d'exécuter manuellement la procédure suivante :
 
 ```vba
 Call injectWorkbookOpenInit
 ```
 
-Cette macro insÃ¨re automatiquement lâ€™appel Ã  `initWorkbook` dans lâ€™Ã©vÃ©nement `Workbook_Open`, ce qui permet dâ€™initialiser correctement le projet Ã  chaque ouverture du fichier.
+Cette macro insère automatiquement l'appel à `initWorkbook` dans l'événement `Workbook_Open`, ce qui permet d'initialiser correctement le projet à chaque ouverture du fichier.
 
-> âš ï¸ Cette Ã©tape doit Ãªtre rÃ©alisÃ©e une fois aprÃ¨s lâ€™import initial de `modLoader.bas`. Elle peut Ãªtre relancÃ©e en cas de rÃ©initialisation du projet.
+> ?? Cette étape doit être réalisée une fois après l'import initial de `modLoader.bas`. Elle peut être relancée en cas de réinitialisation du projet.
 
-> â„¹ï¸ Remarque : Le module `ThisWorkbook` nâ€™est pas supprimÃ© lors de lâ€™exÃ©cution de `loadModulesFromFolder`,  
-> car il sâ€™agit dâ€™un objet systÃ¨me intÃ©grÃ©.  
-> Pour injecter automatiquement le dÃ©marrage (`Workbook_Open`), il faut exÃ©cuter manuellement `injectWorkbookOpenInit`.
+> ?? Remarque : Le module `ThisWorkbook` n'est pas supprimé lors de l'exécution de `loadModulesFromFolder`,  
+> car il s'agit d'un objet système intégré.  
+> Pour injecter automatiquement le démarrage (`Workbook_Open`), il faut exécuter manuellement `injectWorkbookOpenInit`.
