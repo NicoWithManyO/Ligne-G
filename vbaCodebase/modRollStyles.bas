@@ -6,7 +6,8 @@ Public Const COLOR_BG_WHITE As Long = &HFFFFFF
 Public Const COLOR_BG_GRAY As Long = &H808080 ' #808080 (gris foncé, zone inactive)
 Public Const COLOR_BG_GRAY_LIGHT As Long = &HA6A6A6 ' #A6A6A6 (gris clair, lengthCols)
 Public Const COLOR_BG_BLUE_LIGHT As Long = &HF8E9DA ' #DAE9F8 en BGR
-Public Const COLOR_TXT_BLUE As Long = &H985C21 ' #215C98 en BGR
+
+
 Public Const COLOR_TXT_WHITE As Long = &HFFFFFF
 Public Const COLOR_TXT_RED As Long = &H0000FF ' #FF0000 en BGR
 Public Const COLOR_TXT_ORANGE As Long = &HC0FF00 ' #FFC000 en BGR
@@ -31,6 +32,7 @@ End Sub
 Public Sub ApplyLengthStyle(rng As Range)
     rng.Interior.Color = COLOR_BG_GRAY_LIGHT
     rng.Font.Color = COLOR_TXT_BLUE
+    rng.Locked = True
 End Sub
 
 
@@ -48,9 +50,10 @@ Public Sub ApplyThicknessStyle(cell As Range)
         ws.Unprotect
     End If
 
-    If IsEmpty(cell.Value) Or Trim(cell.Value) = "" Then
-        ' Cas cellule vide : fond bleu, texte bleu
-        cell.Interior.Color = COLOR_BG_BLUE_LIGHT   ' #DAE9F8 en BGR
+    ' Appliquer le style selon la valeur
+    If cell.Value = "" Or IsEmpty(cell.Value) Then
+        ' Bleu clair si vide
+        cell.Interior.Color = COLOR_BG_BLUE_LIGHT
         cell.Font.Color = COLOR_TXT_BLUE   ' #215C98 en BGR
         
         ' Si c'est une cellule officielle qui devient vide, on désactive la cellule de rattrapage
@@ -60,7 +63,6 @@ Public Sub ApplyThicknessStyle(cell As Range)
             Dim rattrapageCell As Range
             Dim isLastRow As Boolean
             isLastRow = cell.Row = Range("activeRollArea").Rows(Range("activeRollArea").Rows.Count).Row
-            
             If isLastRow Then
                 Set rattrapageCell = cell.Offset(-1, 0)
             Else
@@ -147,7 +149,7 @@ Public Sub ApplyThicknessStyle(cell As Range)
         End If
     End If
 
-    ' Reproter si elle était protégée au départ
+    ' Reprotéger si elle était protégée au départ
     If ws.ProtectContents Then
         ws.Protect
     End If
@@ -175,13 +177,19 @@ Public Sub FormatRollLayout()
     Dim ws As Worksheet
     Set ws = PRODUCTION_WS
     If ws Is Nothing Then Exit Sub
-    ws.Unprotect
-
+    
+    ' Sauvegarder l'état de protection initial
+    Dim wasProtected As Boolean
+    wasProtected = ws.ProtectContents
+    If wasProtected Then ws.Unprotect
+    
+    On Error GoTo ErrorHandler
+    
     ' 1. Zone inactive (fond et texte gris, verrouillée)
     Dim rngInactive As Range
     On Error Resume Next
     Set rngInactive = Evaluate(ThisWorkbook.Names("inactiveRollArea").RefersTo)
-    On Error GoTo 0
+    On Error GoTo ErrorHandler
     If Not rngInactive Is Nothing Then
         Call ApplyInactiveStyle(rngInactive)
     End If
@@ -190,7 +198,7 @@ Public Sub FormatRollLayout()
     Dim rngActive As Range
     On Error Resume Next
     Set rngActive = Evaluate(ThisWorkbook.Names("activeRollArea").RefersTo)
-    On Error GoTo 0
+    On Error GoTo ErrorHandler
     If Not rngActive Is Nothing Then
         Call ApplyActiveStyle(rngActive)
     End If
@@ -201,7 +209,7 @@ Public Sub FormatRollLayout()
     Set rngLength = Application.Intersect( _
         Evaluate(ThisWorkbook.Names("lengthCols").RefersTo), _
         rngActive)
-    On Error GoTo 0
+    On Error GoTo ErrorHandler
     If Not rngLength Is Nothing Then
         Call ApplyLengthStyle(rngLength)
     End If
@@ -211,11 +219,6 @@ Public Sub FormatRollLayout()
     thickNames = Array("leftThicknessCels", "rightThicknessCels")
     Dim i As Integer
     Dim thickName As String, refString As String
-    
-    ' Déprotéger une seule fois avant la boucle si nécessaire
-    If ws.ProtectContents Then
-        ws.Unprotect
-    End If
     
     For i = LBound(thickNames) To UBound(thickNames)
         thickName = thickNames(i)
@@ -237,11 +240,6 @@ Public Sub FormatRollLayout()
             End If
         End If
     Next i
-    
-    ' Reproter après la boucle si elle était protégée au départ
-    If ws.ProtectContents Then
-        ws.Protect
-    End If
 
     ' 5. Déverrouille les colonnes de défauts dans la zone active
     Dim defNames As Variant
@@ -254,7 +252,7 @@ Public Sub FormatRollLayout()
             Set rngDef = Application.Intersect( _
                 Evaluate(ThisWorkbook.Names(defName).RefersTo), _
                 rngActive)
-            On Error GoTo 0
+            On Error GoTo ErrorHandler
             If Not rngDef Is Nothing Then
                 rngDef.Locked = False
                 rngDef.Font.Color = COLOR_TXT_RED
@@ -262,5 +260,12 @@ Public Sub FormatRollLayout()
         End If
     Next i
 
-    ws.Protect
+CleanExit:
+    ' Reprotéger la feuille si elle était protégée au départ
+    If wasProtected Then ws.Protect
+    Exit Sub
+
+ErrorHandler:
+    Debug.Print "[FormatRollLayout] Erreur : " & Err.Description
+    Resume CleanExit
 End Sub

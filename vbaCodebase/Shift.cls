@@ -3,100 +3,80 @@ BEGIN
   MultiUse = -1  'True
 END
 Attribute VB_Name = "Shift"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = False
+Attribute VB_Exposed = False
 Option Explicit
 
 ' Propriétés Shift
 ' ID : Identifiant unique du poste
-Public ID As Variant
+Public ID As String
 ' DatePoste : Date du poste
-Public DatePoste As Variant
+Public DatePoste As Date
 ' Operateur : Nom de l'opérateur
-Public Operateur As Variant
+Public Operateur As String
 ' Vaccation : Type de vacation (matin, après-midi, nuit)
-Public Vaccation As Variant
+Public Vaccation As String
 ' Duree : Durée du poste en heures
-Public Duree As Variant
+Public Duree As Double
 ' MachinePrisePoste : Numéro de la machine au début du poste
-Public MachinePrisePoste As Variant
+Public MachinePrisePoste As String
 ' LgEnrouleePrisePoste : Longueur enroulée au début du poste
-Public LgEnrouleePrisePoste As Variant
+Public LgEnrouleePrisePoste As Double
 ' MachineFinPoste : Numéro de la machine à la fin du poste
-Public MachineFinPoste As Variant
+Public MachineFinPoste As String
 ' LgEnrouleeFinPoste : Longueur enroulée à la fin du poste
-Public LgEnrouleeFinPoste As Variant
+Public LgEnrouleeFinPoste As Double
 ' Commentaires : Commentaires additionnels sur le poste
-Public Commentaires As Variant
+Public Commentaires As String
 ' SaveDateTime : Date et heure de la sauvegarde
-Public SaveDateTime As Variant
+Public SaveDateTime As Date
 ' Contrôles globaux
-Public ctrlMoyenneMicG As Variant
-Public ctrlMoyenneMicD As Variant
-Public ctrlMicG1 As Variant
-Public ctrlMicG2 As Variant
-Public ctrlMicG3 As Variant
-Public ctrlMicD1 As Variant
-Public ctrlMicD2 As Variant
-Public ctrlMicD3 As Variant
-Public ctrlMasseSurfaciqueGG As Variant
-Public ctrlMasseSurfaciqueGC As Variant
-Public ctrlMasseSurfaciqueDC As Variant
-Public ctrlMasseSurfaciqueDD As Variant
-Public ctrlBain As Variant
-Public ctrlLoi As Variant
-Public ctrlSavedOnRoll As Variant
+Public ctrlMoyenneMicG As Double
+Public ctrlMoyenneMicD As Double
+Public ctrlMicG1 As Double
+Public ctrlMicG2 As Double
+Public ctrlMicG3 As Double
+Public ctrlMicD1 As Double
+Public ctrlMicD2 As Double
+Public ctrlMicD3 As Double
+Public ctrlMasseSurfaciqueGG As Double
+Public ctrlMasseSurfaciqueGC As Double
+Public ctrlMasseSurfaciqueDC As Double
+Public ctrlMasseSurfaciqueDD As Double
+Public ctrlBain As Double
+Public ctrlLoi As Double
+Public ctrlSavedOnRoll As Double
 
-Public lgOK As Variant
-Public lgNOK As Variant
-Public lgScrap As Variant
-Public possibleLg As Variant
+Public lgOK As Double
+Public lgNOK As Double
+Public lgScrap As Double
+Public possibleLg As Double
 ' TRS : Taux de Rendement Synthétique (% de lgOK par rapport à possibleLg)
-Public TRS As Variant
+Public TRS As Double
 
 ' Charge les données du shift depuis la feuille
 ' @but : Initialise les propriétés du shift avec les valeurs de la feuille
 ' @param ws : Feuille contenant les données du shift
 ' @return : aucun
 Public Sub LoadFromSheet(ws As Worksheet)
-    ID = ws.Range(RANGE_SHIFT_ID).Value
-    DatePoste = ws.Range(RANGE_SHIFT_DATE).Value
-    Operateur = ws.Range(RANGE_SHIFT_OPERATEUR).Value
-    Vaccation = ws.Range(RANGE_SHIFT_VACCATION).Value
-    Duree = ws.Range(RANGE_SHIFT_DUREE).Value
-    MachinePrisePoste = ws.Range(RANGE_SHIFT_MACHINE_PRISE_POSTE).Value
-    LgEnrouleePrisePoste = ws.Range(RANGE_SHIFT_LG_ENROULEE_PRISE_POSTE).Value
-    MachineFinPoste = ws.Range(RANGE_SHIFT_MACHINE_FIN_POSTE).Value
-    LgEnrouleeFinPoste = ws.Range(RANGE_SHIFT_LG_ENROULEE_FIN_POSTE).Value
-    
+    ' Charger les données de base
+    ID = ws.Range("shiftID").Value
+    DatePoste = ws.Range("shiftDate").Value
+    Operateur = ws.Range("shiftOperateur").Value
+    Vaccation = ws.Range("shiftVaccation").Value
+    Duree = ws.Range("shiftDuree").Value
+    MachinePrisePoste = ws.Range("shiftMachinePrisePoste").Value
+    LgEnrouleePrisePoste = ws.Range("shiftLgEnrouleePrisePoste").Value
+    MachineFinPoste = ws.Range("shiftMachineFinPoste").Value
+    LgEnrouleeFinPoste = ws.Range("shiftLgEnrouleeFinPoste").Value
+
     ' Charger les longueurs spécifiques depuis les adresses fixes
-    lgOK = ws.Range("AD49").Value
-    lgNOK = ws.Range("AD50").Value
-    lgScrap = ws.Range("AD48").Value
-    possibleLg = ws.Range("AD47").Value
-    
+    Call LoadLengthsFromSheet(ws)
+
     ' Calcul du TRS (Taux de Rendement Synthétique)
-    If IsNumeric(lgOK) And IsNumeric(possibleLg) And CDbl(possibleLg) > 0 Then
-        TRS = Round((CDbl(lgOK) / CDbl(possibleLg)) * 100, 2)
-    Else
-        TRS = 0
-    End If
-    
-    ' Concaténe les lignes des commentaires
-    Dim commentRange As Range
-    Dim commentCell As Range
-    Dim commentText As String
-    
-    Set commentRange = ws.Range(RANGE_SHIFT_COMMENTAIRES)
-    commentText = ""
-    
-    For Each commentCell In commentRange
-        If Not IsEmpty(commentCell.Value) Then
-            If commentText <> "" Then commentText = commentText & " | "
-            commentText = commentText & commentCell.Value
-        End If
-    Next commentCell
-    
-    Commentaires = commentText
-    SaveDateTime = Now
+    Call CalculateTRS
 End Sub
 
 ' Sauvegarde les données du shift dans la feuille
@@ -104,37 +84,33 @@ End Sub
 ' @param ws : Feuille où sauvegarder les données
 ' @return : aucun
 Public Sub SaveToSheet(ws As Worksheet)
-    ws.Range(RANGE_SHIFT_ID).Value = ID
-    ws.Range(RANGE_SHIFT_DATE).Value = DatePoste
-    ws.Range(RANGE_SHIFT_OPERATEUR).Value = Operateur
-    ws.Range(RANGE_SHIFT_VACCATION).Value = Vaccation
-    ws.Range(RANGE_SHIFT_DUREE).Value = Duree
-    ws.Range(RANGE_SHIFT_MACHINE_PRISE_POSTE).Value = MachinePrisePoste
-    ws.Range(RANGE_SHIFT_LG_ENROULEE_PRISE_POSTE).Value = LgEnrouleePrisePoste
-    ws.Range(RANGE_SHIFT_MACHINE_FIN_POSTE).Value = MachineFinPoste
-    ws.Range(RANGE_SHIFT_LG_ENROULEE_FIN_POSTE).Value = LgEnrouleeFinPoste
-    
+    ' Sauvegarder les données de base
+    ws.Range("shiftID").Value = ID
+    ws.Range("shiftDate").Value = DatePoste
+    ws.Range("shiftOperateur").Value = Operateur
+    ws.Range("shiftVaccation").Value = Vaccation
+    ws.Range("shiftDuree").Value = Duree
+    ws.Range("shiftMachinePrisePoste").Value = MachinePrisePoste
+    ws.Range("shiftLgEnrouleePrisePoste").Value = LgEnrouleePrisePoste
+    ws.Range("shiftMachineFinPoste").Value = MachineFinPoste
+    ws.Range("shiftLgEnrouleeFinPoste").Value = LgEnrouleeFinPoste
+
     ' Répartit les commentaires sur les lignes
-    Dim commentRange As Range
-    Dim commentLines() As String
+    Call SplitCommentsToRows(ws)
+End Sub
+
+' Répartit les lignes
+Private Sub SplitCommentsToRows(ws As Worksheet)
+    Dim comments As String
+    comments = ws.Range("shiftComments").Value
+    If comments = "" Then Exit Sub
+
+    Dim lines() As String
+    lines = Split(comments, vbCrLf)
     Dim i As Long
-    
-    Set commentRange = ws.Range(RANGE_SHIFT_COMMENTAIRES)
-    commentLines = Split(Commentaires, " | ")
-    
-    ' Efface d'abord la plage
-    commentRange.ClearContents
-    
-    ' Répartit les lignes
-    For i = 0 To UBound(commentLines)
-        If i <= commentRange.Rows.Count - 1 Then
-            commentRange.Cells(i + 1, 1).Value = commentLines(i)
-        End If
+    For i = 0 To UBound(lines)
+        ws.Cells(i + 1, 1).Value = lines(i)
     Next i
-    ' Call ExportGlobalsCtrlToSheet
-    Call ClearTimeLostRange
-    call ClearGlobalsCtrlValues
-    ' ws.Range(RANGE_SHIFT_SAVE_DATE_TIME).Value = SaveDateTime
 End Sub
 
 ' Ajoute les données du shift à la fin de la feuille data_shifts
@@ -268,8 +244,8 @@ Public Sub AppendToDataShifts(ws As Worksheet)
     ' Remplir les contrôles globaux
     ctrlMoyenneMicG = ""
     ctrlMoyenneMicD = ""
-    Dim micG1 As Variant, micG2 As Variant, micG3 As Variant
-    Dim micD1 As Variant, micD2 As Variant, micD3 As Variant
+    Dim micG1 As Double, micG2 As Double, micG3 As Double
+    Dim micD1 As Double, micD2 As Double, micD3 As Double
     micG1 = ThisWorkbook.Names("micG1").RefersToRange.Value
     micG2 = ThisWorkbook.Names("micG2").RefersToRange.Value
     micG3 = ThisWorkbook.Names("micG3").RefersToRange.Value
@@ -294,7 +270,7 @@ Public Sub AppendToDataShifts(ws As Worksheet)
     ctrlMasseSurfaciqueDD = ThisWorkbook.Names("masseSurfaciqueDD").RefersToRange.Value
     ctrlBain = ThisWorkbook.Names("bain").RefersToRange.Value
     ctrlLoi = ThisWorkbook.Names("loi").RefersToRange.Value
-    Dim at59Val As Variant
+    Dim at59Val As Double
     at59Val = PRODUCTION_WS.Range("AT59").Value
     If at59Val = "" Or IsEmpty(at59Val) Then
         ctrlSavedOnRoll = ""

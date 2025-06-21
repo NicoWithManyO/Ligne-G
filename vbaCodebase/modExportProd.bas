@@ -168,13 +168,13 @@ Public Sub saveRollFromProd()
     lengthToRecord = myRoll.Length
     
     ' Si BG77 contient "isFirst", soustraire shiftLgEnrouleePrisePoste
-    If InStr(1, PRODUCTION_WS.Range("BG77").Value, "isFirst", vbTextCompare) > 0 Then
-        Dim prisePosteLength As Variant
-        prisePosteLength = PRODUCTION_WS.Range(RANGE_SHIFT_LG_ENROULEE_PRISE_POSTE).Value
-        If IsNumeric(prisePosteLength) And Not IsEmpty(prisePosteLength) Then
-            lengthToRecord = lengthToRecord - CDbl(prisePosteLength)
-        End If
-    End If
+    ' If InStr(1, PRODUCTION_WS.Range("BG77").Value, "isFirst", vbTextCompare) > 0 Then
+    '    Dim prisePosteLength As Variant
+    '    prisePosteLength = PRODUCTION_WS.Range(RANGE_SHIFT_LG_ENROULEE_PRISE_POSTE).Value
+    '    If IsNumeric(prisePosteLength) And Not IsEmpty(prisePosteLength) Then
+    '        lengthToRecord = lengthToRecord - CDbl(prisePosteLength)
+    '    End If
+    ' End If
 
     ' Ajouter la longueur à AB49 ou AD50 selon le statut
     If UCase(myRoll.Status) = "CONFORME" Then
@@ -192,7 +192,7 @@ Public Sub saveRollFromProd()
     End If
 
     PRODUCTION_WS.Range("BG77").Value = ""
-    PRODUCTION_WS.Range("AE64").Value = "ok"
+    ' PRODUCTION_WS.Range("AE64").Value = "ok"
     
     ' Si le status est conforme, on incrémente le numéro de roll
     If UCase(myRoll.Status) = "CONFORME" Then
@@ -202,8 +202,13 @@ Public Sub saveRollFromProd()
         Call SetRollNumber(PRODUCTION_WS, currentRollNumber + 1)
         Debug.Print "[saveRollFromProd] Numéro de roll incrémenté : " & (currentRollNumber + 1)
         ' Mettre AQ59 à OK uniquement si conforme
-        ' If PRODUCTION_WS.ProtectContents Then PRODUCTION_WS.Unprotect
-        ' PRODUCTION_WS.Range("AQ59").Value = "OK"
+        If PRODUCTION_WS.ProtectContents Then
+            PRODUCTION_WS.Unprotect
+            PRODUCTION_WS.Range("AQ59").Value = "OK"
+            PRODUCTION_WS.Protect
+        Else
+            PRODUCTION_WS.Range("AQ59").Value = "OK"
+        End If
     Else
         Debug.Print "[saveRollFromProd] Status non conforme : " & myRoll.Status & " - Pas d'incrémentation"
     End If
