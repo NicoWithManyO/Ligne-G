@@ -20,7 +20,7 @@ Public Function IsRollConformDefects(Optional ByRef motif As String = "") As Boo
     
     ' Liste des défauts à contrôler et leur seuil (lecture dynamique depuis le tableau)
     Dim iRow As Long
-    For iRow = 54 To 59
+    For iRow = 53 To 59
         Dim nomDefaut As String
         nomDefaut = Trim(ws.Range("BG" & iRow).Value)
         Dim seuil As Variant
