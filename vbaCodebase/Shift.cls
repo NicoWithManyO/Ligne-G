@@ -374,4 +374,5 @@ Public Sub AppendToDataShifts(ws As Worksheet)
     PRODUCTION_WS.Range("AB49").Value = ""
     PRODUCTION_WS.Range("AD50").Value = "" 
     MsgBox "Le poste a été enregistré avec succès.", vbInformation, "Enregistrement réussi"
+    PRODUCTION_WS.Protect
 End Sub
