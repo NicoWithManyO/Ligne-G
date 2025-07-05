@@ -192,3 +192,37 @@ Public Function NameExists(nom As String) As Boolean
         End If
     Next n
 End Function
+
+
+' Envoi à la découpe, en forçant "NON CONFORME" (BK=84=""), puis lance l'export
+' @but : Vider le contenu de la cellule BK84
+' @param Aucun
+' @return Aucun
+' @pré : PRODUCTION_WS doit être initialisé
+Public Sub ToDecoupe()
+    If PRODUCTION_WS Is Nothing Then Exit Sub
+    
+    ' Boîte de dialogue de confirmation
+    Dim response As VbMsgBoxResult
+    response = MsgBox("Êtes-vous sûr de vouloir envoyer ce rouleau vers la découpe ?", vbYesNo + vbQuestion, "Confirmation")
+    
+    ' Si l'utilisateur clique sur "Non", on annule l'opération
+    If response = vbNo Then
+        Debug.Print "[ToDecoupe] Opération annulée par l'utilisateur"
+        Exit Sub
+    End If
+    
+    ' Déprotéger si nécessaire
+    Dim wasProtected As Boolean
+    wasProtected = PRODUCTION_WS.ProtectContents
+    If wasProtected Then PRODUCTION_WS.Unprotect
+    
+    ' Vider la cellule BK84
+    PRODUCTION_WS.Range("BK84").Value = ""
+    
+    ' Reproter si elle était protégée au départ
+    If wasProtected Then PRODUCTION_WS.Protect
+    
+    Debug.Print "[ClearCellBK84] Cellule BK84 vidée"
+    call saveRollFromProd
+End Sub

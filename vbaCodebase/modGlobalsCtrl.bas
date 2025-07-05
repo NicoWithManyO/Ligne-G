@@ -114,7 +114,7 @@ Public Sub ExportGlobalsCtrlToSheet()
         moyenneMicD = ""
     End If
 
-    ' Écrire les en-têtes si la feuille est vide
+    ' ?crire les en-têtes si la feuille est vide
     If isEmpty Then
         ws.Cells(1, 1).Value = "globalsCtrlID"
         ws.Cells(1, 2).Value = "shiftID"

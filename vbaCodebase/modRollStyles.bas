@@ -6,7 +6,7 @@ Public Const COLOR_BG_WHITE As Long = &HFFFFFF
 Public Const COLOR_BG_GRAY As Long = &H808080 ' #808080 (gris foncé, zone inactive)
 Public Const COLOR_BG_GRAY_LIGHT As Long = &HA6A6A6 ' #A6A6A6 (gris clair, lengthCols)
 Public Const COLOR_BG_BLUE_LIGHT As Long = &HF8E9DA ' #DAE9F8 en BGR
-
+Public Const COLOR_TXT_BLUE As Long = &H985C21 ' #215C98 en BGR
 
 Public Const COLOR_TXT_WHITE As Long = &HFFFFFF
 Public Const COLOR_TXT_RED As Long = &H0000FF ' #FF0000 en BGR

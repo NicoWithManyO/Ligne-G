@@ -230,7 +230,7 @@ Public Sub saveRollFromProd()
     ' Call ExportGlobalsCtrlToSheet
     ' Message de confirmation
     MsgBox "Le rouleau " & myRoll.ID & " a bien été sauvegardé : " & myRoll.Status, vbInformation
-
+    PRODUCTION_WS.Range("BK84").Value = True
 SafeExit:
     ' Reprotéger la feuille si besoin
     If wasProtected Then PRODUCTION_WS.Protect
